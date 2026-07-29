@@ -1,0 +1,40 @@
+# ============================================================
+# INTESTAZIONI DI SICUREZZA
+# ------------------------------------------------------------
+# Questo file va caricato insieme al sito su Netlify o Cloudflare
+# Pages: viene letto in automatico e applica le regole qui sotto.
+# (Su Vercel serve invece un file vercel.json; su hosting classico
+#  con Apache si usa .htaccess — chiedi pure e te lo preparo.)
+#
+# Le regole valgono per tutte le pagine del sito.
+# ============================================================
+
+/*
+  # Obbliga i browser a usare sempre HTTPS per i prossimi due anni,
+  # anche se qualcuno digita l'indirizzo senza "https"
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+
+  # Impedisce che il sito venga incorniciato dentro pagine altrui
+  # (tecnica usata per far cliccare l'utente su cose che non vede)
+  X-Frame-Options: DENY
+
+  # Impedisce al browser di "indovinare" il tipo dei file: un file
+  # caricato per sbaglio non può essere eseguito come script
+  X-Content-Type-Options: nosniff
+
+  # Non rivela ai siti esterni quale pagina il visitatore stava guardando
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Nega l'accesso a fotocamera, microfono, posizione e pagamenti:
+  # il sito non ne ha bisogno, quindi nessuno script può chiederli
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+
+  # Stesse regole della Content Security Policy scritta nella pagina,
+  # qui applicate a livello di server (più difficili da aggirare)
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.basemaps.cartocdn.com https://unpkg.com; media-src 'self' data: blob:; connect-src 'self' https://*.basemaps.cartocdn.com; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
+
+# I video sono file grandi che non cambiano mai: si dicono al browser
+# di tenerli in memoria un anno, così non li riscarica ogni visita
+# (meno banda consumata, meno costi di hosting)
+/*.mp4
+  Cache-Control: public, max-age=31536000, immutable
