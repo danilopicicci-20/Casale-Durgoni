@@ -1,2 +1,9 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# I fotogrammi sono file binari: Git non deve toccarne il contenuto
+*.webp binary
+*.jpg binary
+*.png binary
+*.avif binary
+*.mp4 binary

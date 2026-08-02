@@ -38,3 +38,12 @@
 # (meno banda consumata, meno costi di hosting)
 /*.mp4
   Cache-Control: public, max-age=31536000, immutable
+
+# I fotogrammi della discesa in piscina non cambiano mai: il browser li
+# tiene in cache per un anno, quindi dalla seconda visita la discesa parte
+# istantaneamente e senza consumare banda.
+/frames/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
