@@ -1,0 +1,6 @@
+# .htaccess vive solo sul server: contiene la password impostata da
+# Hostinger (hPanel -> Password Protect Directories) e un rimando alle
+# nostre regole di cache in hostinger-cache.conf. Se restasse tracciato
+# da Git, ogni "git push" lo sovrascriverebbe e la password sparirebbe,
+# come e' successo.
+.htaccess

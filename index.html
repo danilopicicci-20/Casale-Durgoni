@@ -24,6 +24,10 @@
        la pagina in cima, sia al caricamento sia quando si torna indietro
        dalla cache (bfcache). */
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    /* Finche' la schermata di caricamento e' visibile lo scroll e' fermo:
+       prima si poteva scorrere "alla cieca" e, a caricamento finito, ci
+       si ritrovava a meta' discesa senza fotogrammi pronti. */
+    document.documentElement.classList.add('lding');
     addEventListener('beforeunload', function() {
       window.scrollTo(0, 0);
     });
@@ -129,6 +133,12 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box
+    }
+
+    html.lding,
+    html.lding body {
+      overflow: hidden;
+      height: 100%
     }
 
     html {
@@ -3317,9 +3327,17 @@
         return queue.splice(best, 1)[0];
       }
 
+      function takeNext() {
+        /* utente ancora in cima: si segue l'ordine a ondate della coda,
+           che copre l'intera discesa quasi subito (un fotogramma ogni 8,
+           poi ogni 4, ogni 2, tutti). Utente gia' nella discesa: si da'
+           la precedenza ai fotogrammi vicini alla sua posizione. */
+        return wantIdx > 3 ? takeNearest() : queue.shift();
+      }
+
       function pump() {
         while (inFlight < MAXP && queue.length) {
-          load(takeNearest());
+          load(takeNext());
         }
       }
 
@@ -3552,6 +3570,7 @@
       function reveal() {
         if (revealed) return;
         revealed = true;
+        document.documentElement.classList.remove('lding');
         loader.classList.add('off');
         dirty = true;
         if (lastDrawn >= 0 && heroFallback) heroFallback.style.display = 'none';
@@ -4067,8 +4086,17 @@
   </script>
 
   <script>
-    /* mappa — autonoma */
+    /* mappa — autonoma.
+       Non si avvia piu' al caricamento della pagina: scaricava le tessere
+       e costruiva la mappa proprio mentre arrivavano i fotogrammi della
+       discesa, rubando rete e CPU nei primi secondi. Ora parte solo
+       quando la sezione Territorio si avvicina allo schermo. */
     (function() {
+      var started = false;
+
+      function initMap() {
+        if (started) return;
+        started = true;
       try {
         if (typeof L !== 'undefined') {
           var COORDS = [43.5080, 11.7170],
@@ -4118,6 +4146,24 @@
           });
         }
       } catch (e) {}
+      }
+
+      var sec = document.getElementById('territorio');
+      if (sec && 'IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function(en) {
+          if (en[0].isIntersecting) {
+            io.disconnect();
+            initMap();
+          }
+        }, {
+          rootMargin: '900px 0px'
+        });
+        io.observe(sec);
+        /* rete di sicurezza: comunque attiva dopo l'apertura della pagina */
+        setTimeout(initMap, 12000);
+      } else {
+        initMap();
+      }
     })();
   </script>
 </body>
