@@ -3300,7 +3300,17 @@
 
       function pump() {
         while (inFlight < MAXP && queue.length) {
-          load(takeNearest());
+          var i = takeNearest();
+          /* sui telefoni si scarica solo la finestra attorno alla
+             posizione attuale: i fotogrammi lontani restano in coda e
+             verranno presi quando lo scroll si avvicina. Senza questo
+             confine, la pulizia della memoria e il caricamento si
+             rincorrerebbero a vuoto consumando CPU di continuo. */
+          if (lowPower && Math.abs(i - wantIdx) > KEEP) {
+            queue.push(i);
+            break;
+          }
+          load(i);
         }
       }
 
@@ -3906,6 +3916,36 @@
           });
         } else {
           lazyBg.forEach(fill);
+        }
+      })();
+
+      /* ---------- galleria: caricamento anticipato ---------- */
+  /* Le foto pigre dentro uno scorrimento orizzontale vengono richieste da
+     Safari solo quando entrano fisicamente nello schermo: sfogliando si
+     vedevano comparire in ritardo. Quando la sezione galleria si avvicina
+     in verticale, si forza il caricamento di tutte le sue foto (sul
+     telefono sono le varianti leggere: ~700 KB in tutto). */
+      (function() {
+        var stage = document.querySelector('.gal-stage');
+        if (!stage) return;
+
+        function eager() {
+          stage.querySelectorAll('img[loading="lazy"]').forEach(function(im) {
+            im.loading = 'eager';
+          });
+        }
+        if ('IntersectionObserver' in window) {
+          var io = new IntersectionObserver(function(en) {
+            if (en[0].isIntersecting) {
+              eager();
+              io.disconnect();
+            }
+          }, {
+            rootMargin: '1200px 0px'
+          });
+          io.observe(stage);
+        } else {
+          eager();
         }
       })();
 
