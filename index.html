@@ -103,7 +103,7 @@
   <meta name="description" content="Autentica villa leopoldina ai piedi del borgo di Laterina, alle porte di Arezzo. Piscina privata ad uso esclusivo, parco ombreggiato e tre appartamenti indipendenti.">
   <link rel="preload" as="image" href="frames/poster.jpg" fetchpriority="high">
   <link rel="preload" as="image" href="frames/hi/001.webp" media="(min-width:1024px) and (hover:hover)">
-  <link rel="preload" as="image" href="frames/lo/001.webp" media="(max-width:1023px),(hover:none)">
+  <link rel="preload" as="image" href="frames/mob/001.webp" media="(max-width:1023px),(hover:none)">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
@@ -1846,6 +1846,18 @@
       height: auto
     }
 
+    @media (max-width:820px) {
+
+      /* sfondi alleggeriti: sul telefono bastano 640 px di larghezza */
+      .night .bg {
+        background-image: url('img/m/night-bg.webp')
+      }
+
+      .cta .bg {
+        background-image: url('img/m/cta-bg.webp')
+      }
+    }
+
     .cta p {
       margin: 28px auto 48px;
       color: var(--dim);
@@ -2764,10 +2776,10 @@
         <div class="media rvfade">
           <span class="note">Il salone con volte in mattone</span>
           <div class="imgbox"><span class="badge">I</span>
-            <div class="ph par" data-bg="img/tenuta-1a.jpg"></div>
+            <div class="ph par" data-bg="img/tenuta-1a.jpg" data-bg-m="img/m/tenuta-1a.webp"></div>
           </div>
           <div class="imgbox b">
-            <div class="ph par2" data-bg="img/tenuta-1b.jpg"></div>
+            <div class="ph par2" data-bg="img/tenuta-1b.jpg" data-bg-m="img/m/tenuta-1b.webp"></div>
           </div>
         </div>
       </div>
@@ -2781,10 +2793,10 @@
         <div class="media rvfade">
           <span class="note">Il solarium a mezzogiorno</span>
           <div class="imgbox"><span class="badge">II</span>
-            <div class="ph par" data-bg="img/tenuta-2a.jpg"></div>
+            <div class="ph par" data-bg="img/tenuta-2a.jpg" data-bg-m="img/m/tenuta-2a.webp"></div>
           </div>
           <div class="imgbox b">
-            <div class="ph par2" data-bg="img/tenuta-2b.jpg"></div>
+            <div class="ph par2" data-bg="img/tenuta-2b.jpg" data-bg-m="img/m/tenuta-2b.webp"></div>
           </div>
         </div>
       </div>
@@ -2798,10 +2810,10 @@
         <div class="media rvfade">
           <span class="note">Il viale dei cipressi secolari</span>
           <div class="imgbox"><span class="badge">III</span>
-            <div class="ph par" data-bg="img/tenuta-3a.jpg"></div>
+            <div class="ph par" data-bg="img/tenuta-3a.jpg" data-bg-m="img/m/tenuta-3a.webp"></div>
           </div>
           <div class="imgbox b">
-            <div class="ph par2" data-bg="img/tenuta-3b.jpg"></div>
+            <div class="ph par2" data-bg="img/tenuta-3b.jpg" data-bg-m="img/m/tenuta-3b.webp"></div>
           </div>
         </div>
       </div>
@@ -2834,63 +2846,63 @@
       <div class="gal-stage">
         <div class="gal-track" id="galTrack">
           <div class="gcard">
-            <div class="ph"><img src="img/gal-01.jpg" alt="Salotto" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-01.webp" type="image/webp"><img src="img/gal-01.jpg" alt="Salotto" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Salotto</div>
           </div>
           <div class="gcard">
-            <div class="ph"><img src="img/gal-02.jpg" alt="Salotto" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-02.webp" type="image/webp"><img src="img/gal-02.jpg" alt="Salotto" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Salotto</div>
           </div>
           <div class="gcard tall">
-            <div class="ph"><img src="img/gal-03.jpg" alt="Cucina" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-03.webp" type="image/webp"><img src="img/gal-03.jpg" alt="Cucina" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Cucina</div>
           </div>
           <div class="gcard">
-            <div class="ph"><img src="img/gal-04.jpg" alt="Stanza 1" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-04.webp" type="image/webp"><img src="img/gal-04.jpg" alt="Stanza 1" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Stanza 1</div>
           </div>
           <div class="gcard tall">
-            <div class="ph"><img src="img/gal-05.jpg" alt="Stanza 2" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-05.webp" type="image/webp"><img src="img/gal-05.jpg" alt="Stanza 2" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Stanza 2</div>
           </div>
           <div class="gcard">
-            <div class="ph"><img src="img/gal-06.jpg" alt="Stanza 3" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-06.webp" type="image/webp"><img src="img/gal-06.jpg" alt="Stanza 3" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Stanza 3</div>
           </div>
           <div class="gcard">
-            <div class="ph"><img src="img/gal-07.jpg" alt="Stanza 4" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-07.webp" type="image/webp"><img src="img/gal-07.jpg" alt="Stanza 4" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Stanza 4</div>
           </div>
           <div class="gcard tall">
-            <div class="ph"><img src="img/gal-08.jpg" alt="Stanza 5" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-08.webp" type="image/webp"><img src="img/gal-08.jpg" alt="Stanza 5" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Stanza 5</div>
           </div>
           <div class="gcard">
-            <div class="ph"><img src="img/gal-09.jpg" alt="Stanza 6" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-09.webp" type="image/webp"><img src="img/gal-09.jpg" alt="Stanza 6" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Stanza 6</div>
           </div>
           <div class="gcard">
-            <div class="ph"><img src="img/gal-10.jpg" alt="Stanza 7" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-10.webp" type="image/webp"><img src="img/gal-10.jpg" alt="Stanza 7" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Stanza 7</div>
           </div>
           <div class="gcard tall">
-            <div class="ph"><img src="img/gal-11.jpg" alt="Bagno 1" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-11.webp" type="image/webp"><img src="img/gal-11.jpg" alt="Bagno 1" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Bagno 1</div>
           </div>
           <div class="gcard">
-            <div class="ph"><img src="img/gal-12.jpg" alt="Bagno 2" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-12.webp" type="image/webp"><img src="img/gal-12.jpg" alt="Bagno 2" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Bagno 2</div>
           </div>
           <div class="gcard">
-            <div class="ph"><img src="img/gal-13.jpg" alt="Bagno 3" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-13.webp" type="image/webp"><img src="img/gal-13.jpg" alt="Bagno 3" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Bagno 3</div>
           </div>
           <div class="gcard">
-            <div class="ph"><img src="img/gal-14.jpg" alt="Bagno 4" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-14.webp" type="image/webp"><img src="img/gal-14.jpg" alt="Bagno 4" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Bagno 4</div>
           </div>
           <div class="gcard tall">
-            <div class="ph"><img src="img/gal-15.jpg" alt="Palestra" loading="lazy" decoding="async"></div>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-15.webp" type="image/webp"><img src="img/gal-15.jpg" alt="Palestra" loading="lazy" decoding="async"></picture></div>
             <div class="cap">Palestra</div>
           </div>
         </div>
@@ -2904,19 +2916,19 @@
       <div class="eyebrow rvfade">Gli Esterni</div>
       <h2 class="big rvfade">La tenuta, <em>a cielo aperto</em>.</h2>
       <div class="bento">
-        <div class="bx a rvfade"><img src="img/est-1.jpg" alt="Il viale dei cipressi" loading="lazy" decoding="async">
+        <div class="bx a rvfade"><picture><source media="(max-width:820px)" srcset="img/m/est-1.webp" type="image/webp"><img src="img/est-1.jpg" alt="Il viale dei cipressi" loading="lazy" decoding="async"></picture>
           <div class="cap">Il viale dei cipressi</div>
         </div>
-        <div class="bx b rvfade"><img src="img/est-2.jpg" alt="La piscina panoramica" loading="lazy" decoding="async">
+        <div class="bx b rvfade"><picture><source media="(max-width:820px)" srcset="img/m/est-2.webp" type="image/webp"><img src="img/est-2.jpg" alt="La piscina panoramica" loading="lazy" decoding="async"></picture>
           <div class="cap">La piscina panoramica</div>
         </div>
-        <div class="bx c rvfade"><img src="img/est-3.jpg" alt="La facciata del casale" loading="lazy" decoding="async">
+        <div class="bx c rvfade"><picture><source media="(max-width:820px)" srcset="img/m/est-3.webp" type="image/webp"><img src="img/est-3.jpg" alt="La facciata del casale" loading="lazy" decoding="async"></picture>
           <div class="cap">La facciata del casale</div>
         </div>
-        <div class="bx d rvfade"><img src="img/est-4.jpg" alt="La tenuta vista dall'alto" loading="lazy" decoding="async">
+        <div class="bx d rvfade"><picture><source media="(max-width:820px)" srcset="img/m/est-4.webp" type="image/webp"><img src="img/est-4.jpg" alt="La tenuta vista dall'alto" loading="lazy" decoding="async"></picture>
           <div class="cap">La tenuta dall'alto</div>
         </div>
-        <div class="bx e rvfade"><img src="img/est-5.jpg" alt="La piscina di sera" loading="lazy" decoding="async">
+        <div class="bx e rvfade"><picture><source media="(max-width:820px)" srcset="img/m/est-5.webp" type="image/webp"><img src="img/est-5.jpg" alt="La piscina di sera" loading="lazy" decoding="async"></picture>
           <div class="cap">La piscina di sera</div>
         </div>
       </div>
@@ -3195,16 +3207,27 @@
 
      Due risoluzioni: "hi" (1280 px) per i computer, "lo" (900 px) per i
      telefoni, scelte in automatico. */
-      var N_TOT = 121; /* fotogrammi disponibili su disco */
       var conn = navigator.connection || {};
       var slowNet = conn.saveData === true || /2g/.test(conn.effectiveType || '');
       var lowPower = touch || innerWidth < 1024 || slowNet;
-      var FDIR = lowPower ? 'frames/lo/' : 'frames/hi/';
-      /* Sui telefoni si usa un fotogramma ogni due: la discesa resta
-         fluida perche' e' comunque legata allo scroll, ma il traffico si
-         dimezza (da ~8 MB a ~4 MB) e la pagina diventa usabile molto prima. */
-      var FSTEP = slowNet ? 3 : (lowPower ? 2 : 1);
-      var N_MF = Math.floor((N_TOT - 1) / FSTEP) + 1;
+
+      /* Sui telefoni si usa un set dedicato: 41 fotogrammi gia' ritagliati
+         in verticale (480x960). E' esattamente l'inquadratura che il
+         telefono mostrava comunque, ma senza i pixel laterali invisibili:
+         la memoria occupata scende da ~142 MB a ~72 MB e il traffico da
+         4,2 MB a 1,8 MB. Era l'eccesso di memoria a far scartare a Safari
+         le immagini gia' caricate, con i blocchi nella discesa e le foto
+         della galleria che sparivano. */
+      var FDIR, N_MF, FSTEP;
+      if (lowPower) {
+        FDIR = 'frames/mob/';
+        N_MF = 41;
+        FSTEP = 1;
+      } else {
+        FDIR = 'frames/hi/';
+        N_MF = 121;
+        FSTEP = 1;
+      }
 
       function frameURL(i) {
         var n = String(i * FSTEP + 1);
@@ -3278,6 +3301,28 @@
       function pump() {
         while (inFlight < MAXP && queue.length) {
           load(takeNearest());
+        }
+      }
+
+      /* ---- tetto alla memoria ----
+         Ogni fotogramma decodificato occupa circa 1,8 MB di memoria video.
+         Safari su iPhone, superata la soglia, inizia a scartare da solo le
+         immagini gia' caricate — ed e' cosi' che sparivano le foto della
+         galleria. Qui i fotogrammi troppo lontani dal punto in cui ci si
+         trova vengono liberati e rimessi in coda: se si torna indietro
+         rientrano dalla cache del browser, senza nuovo traffico. */
+      var KEEP = lowPower ? 22 : 999,
+        lastTrim = 0;
+
+      function trimFar() {
+        if (!lowPower) return;
+        for (var i = 0; i < N_MF; i++) {
+          if (!frames[i] || !ready[i]) continue;
+          if (Math.abs(i - wantIdx) <= KEEP) continue;
+          if (i === lastDrawn) continue;
+          frames[i] = null;
+          ready[i] = false;
+          if (queue.indexOf(i) < 0) queue.push(i);
         }
       }
 
@@ -3416,6 +3461,13 @@
         if (idx !== lastDrawn) {
           var use = nearestReady(idx);
           if (use >= 0 && use !== lastDrawn) drawFrame(use);
+        }
+        /* la pulizia costa un giro sull'elenco: si fa solo quando ci si e'
+           spostati parecchio, mai a ogni fotogramma */
+        if (lowPower && Math.abs(idx - lastTrim) > 8) {
+          lastTrim = idx;
+          trimFar();
+          pump();
         }
 
         if (revealed) {
@@ -3828,10 +3880,14 @@
         var lazyBg = document.querySelectorAll('[data-bg]');
         if (!lazyBg.length) return;
 
+        var wantSmall = matchMedia('(max-width:820px)').matches;
+
         function fill(el) {
-          if (el.dataset.bg) {
-            el.style.backgroundImage = "url('" + el.dataset.bg + "')";
+          var src = (wantSmall && el.dataset.bgM) || el.dataset.bg;
+          if (src) {
+            el.style.backgroundImage = "url('" + src + "')";
             el.removeAttribute('data-bg');
+            el.removeAttribute('data-bg-m');
           }
         }
         if ('IntersectionObserver' in window) {
@@ -3906,7 +3962,10 @@
         var card = e.target.closest ? e.target.closest('.gcard,.bx') : null;
         if (!card) return;
         var img = card.querySelector('img');
-        if (img && img.src) openLb(img.src);
+        if (img) {
+          var s = img.currentSrc || img.src;
+          if (s) openLb(s);
+        }
       });
 
       lb.addEventListener('click', closeLb);
