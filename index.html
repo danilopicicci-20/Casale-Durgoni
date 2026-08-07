@@ -607,6 +607,15 @@
       overflow: hidden
     }
 
+    /* Su touch l'altezza segue il viewport "grande" (barra ritratta):
+       niente cambi di layout mentre si scorre la discesa */
+    @media (hover:none) {
+      .hero {
+        height: 100vh;
+        height: 100lvh
+      }
+    }
+
     .hero-fallback {
       position: absolute;
       inset: 0;
@@ -2552,6 +2561,16 @@
         -webkit-backdrop-filter: none !important
       }
 
+      /* i contenuti non dipendono mai dalle animazioni: visibili subito */
+      .rvfade {
+        opacity: 1 !important;
+        transform: none !important
+      }
+
+      .night .quote .wd {
+        opacity: 1 !important
+      }
+
       nav .pill {
         background: rgba(16, 12, 8, .82)
       }
@@ -3300,39 +3319,7 @@
 
       function pump() {
         while (inFlight < MAXP && queue.length) {
-          var i = takeNearest();
-          /* sui telefoni si scarica solo la finestra attorno alla
-             posizione attuale: i fotogrammi lontani restano in coda e
-             verranno presi quando lo scroll si avvicina. Senza questo
-             confine, la pulizia della memoria e il caricamento si
-             rincorrerebbero a vuoto consumando CPU di continuo. */
-          if (lowPower && Math.abs(i - wantIdx) > KEEP) {
-            queue.push(i);
-            break;
-          }
-          load(i);
-        }
-      }
-
-      /* ---- tetto alla memoria ----
-         Ogni fotogramma decodificato occupa circa 1,8 MB di memoria video.
-         Safari su iPhone, superata la soglia, inizia a scartare da solo le
-         immagini gia' caricate — ed e' cosi' che sparivano le foto della
-         galleria. Qui i fotogrammi troppo lontani dal punto in cui ci si
-         trova vengono liberati e rimessi in coda: se si torna indietro
-         rientrano dalla cache del browser, senza nuovo traffico. */
-      var KEEP = lowPower ? 22 : 999,
-        lastTrim = 0;
-
-      function trimFar() {
-        if (!lowPower) return;
-        for (var i = 0; i < N_MF; i++) {
-          if (!frames[i] || !ready[i]) continue;
-          if (Math.abs(i - wantIdx) <= KEEP) continue;
-          if (i === lastDrawn) continue;
-          frames[i] = null;
-          ready[i] = false;
-          if (queue.indexOf(i) < 0) queue.push(i);
+          load(takeNearest());
         }
       }
 
@@ -3398,10 +3385,15 @@
         /* Si limita la densita' di pixel: oltre una certa soglia il
            disegno costa il doppio senza guadagno visibile, ed e' il
            motivo principale degli scatti sui telefoni ad alta densita'. */
-        var dpr = Math.min(devicePixelRatio || 1, touch ? 1.3 : 1.6);
+        var dpr = Math.min(devicePixelRatio || 1, touch ? 1.25 : 1.6);
         var w = Math.round(canvas.clientWidth * dpr);
         var h = Math.round(canvas.clientHeight * dpr);
         if (w === cw && h === ch) return;
+        /* su iOS la barra degli indirizzi che si ritrae cambia l'altezza
+           di pochi pixel mentre si scorre: rifare il canvas in quel
+           momento (si svuota e si ridisegna) produceva uno scatto secco.
+           I piccoli cambi di sola altezza vengono ignorati. */
+        if (touch && cw > 0 && w === cw && Math.abs(h - ch) < 180) return;
         cw = canvas.width = w;
         ch = canvas.height = h;
         ctx.imageSmoothingEnabled = true;
@@ -3472,13 +3464,7 @@
           var use = nearestReady(idx);
           if (use >= 0 && use !== lastDrawn) drawFrame(use);
         }
-        /* la pulizia costa un giro sull'elenco: si fa solo quando ci si e'
-           spostati parecchio, mai a ogni fotogramma */
-        if (lowPower && Math.abs(idx - lastTrim) > 8) {
-          lastTrim = idx;
-          trimFar();
-          pump();
-        }
+
 
         if (revealed) {
           var t = Math.min(1, prog / 0.36);
@@ -3561,7 +3547,7 @@
       var LD_C = 2 * Math.PI * 94;
       /* Sui telefoni bastano meno fotogrammi per aprire la pagina: i
          restanti continuano ad arrivare mentre si legge il titolo. */
-      var PRELOAD_F = lowPower ? 8 : 16;
+      var PRELOAD_F = lowPower ? 6 : 16;
 
       function reveal() {
         if (revealed) return;
@@ -3569,7 +3555,7 @@
         loader.classList.add('off');
         dirty = true;
         if (lastDrawn >= 0 && heroFallback) heroFallback.style.display = 'none';
-        if (hasGsap && !reduced) {
+        if (hasGsap && !reduced && !lowPower) {
           var lts = document.querySelectorAll('#heroTitle .lt');
           gsap.fromTo(lts, {
             yPercent: 120,
@@ -3652,13 +3638,18 @@
       setTimeout(function() {
         clearInterval(ldTimer);
         reveal();
-      }, 3500);
+      }, lowPower ? 2400 : 3500);
 
 
       /* ---------- GSAP scenes ---------- */
   /* Tutte le animazioni legate allo scroll (GSAP + ScrollTrigger): comparse dei testi, parallasse delle foto, contatori, parole della frase night, ecc. */
       var animOK = false;
-      if (hasGsap && !reduced) {
+      /* Sui telefoni le scene legate allo scroll non vengono proprio
+         registrate: con lo scorrimento nativo veloce di iOS restavano
+         indietro e i testi (che partono invisibili) comparivano in
+         ritardo o mai. Su mobile tutto e' visibile da subito; le
+         animazioni restano su computer, dove lo scroll e' smorzato. */
+      if (hasGsap && !reduced && !lowPower) {
         try {
           /* reveal generico */
           document.querySelectorAll('.rvfade').forEach(function(el) {
