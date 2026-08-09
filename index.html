@@ -2376,24 +2376,27 @@
         padding: 10px 4vw
       }
 
+      /* Le quattro voci stanno tutte nella larghezza dello schermo:
+         niente scorrimento laterale, che tagliava l'ultima parola e
+         faceva sembrare la barra "mobile". Sono distribuite con spazio
+         uguale fra loro e la spaziatura si adatta ai telefoni stretti. */
       nav .links {
         display: flex;
         order: 3;
         width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        justify-content: flex-start
-      }
-
-      nav .links::-webkit-scrollbar {
-        display: none
+        overflow: visible;
+        justify-content: space-between;
+        gap: 0;
+        padding-left: clamp(6px, 2vw, 16px);
+        padding-right: clamp(6px, 2vw, 16px)
       }
 
       nav .links a {
-        font-size: 11px;
-        padding: 7px 12px;
-        white-space: nowrap
+        font-size: clamp(9px, 2.7vw, 11px);
+        letter-spacing: clamp(.04em, .8vw, .14em);
+        padding: 7px 0;
+        white-space: nowrap;
+        flex: 0 0 auto
       }
     }
 
