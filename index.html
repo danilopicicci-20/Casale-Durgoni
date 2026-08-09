@@ -108,10 +108,19 @@
   <link rel="preload" as="image" href="frames/poster.jpg" fetchpriority="high">
   <link rel="preload" as="image" href="frames/hi/001.webp" media="(min-width:1024px) and (hover:hover)">
   <link rel="preload" as="image" href="frames/mob/001.webp" media="(max-width:1023px),(hover:none)">
+  <link rel="preload" as="image" href="frames/mob/002.webp" media="(max-width:1023px),(hover:none)">
+  <link rel="preload" as="image" href="frames/mob/006.webp" media="(max-width:1023px),(hover:none)">
+  <link rel="preload" as="image" href="frames/mob/011.webp" media="(max-width:1023px),(hover:none)">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <!-- I caratteri non bloccano piu' il primo disegno: si caricano in
+       parallelo e vengono applicati appena pronti. Lo scambio avviene
+       mentre la schermata di caricamento e' ancora davanti, quindi non
+       si vede alcuno sfarfallio. -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Jost:wght@300;400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Jost:wght@300;400;500&display=swap">
+  </noscript>
   <style>
     :root {
       --bg: #0d0b08;
@@ -3079,12 +3088,26 @@
 
   <div id="lb"><span class="x">Chiudi ✕</span><img src="" alt=""><span class="lb-hint">clicca o scorri per chiudere</span></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
-    (function() {
+    /* Caricatore di librerie.
+       Prima queste quattro librerie (circa 280 KB) venivano scaricate ed
+       eseguite sempre, bloccando la lettura della pagina — anche sui
+       telefoni, dove non ne viene usata nemmeno una: lo scorrimento
+       fluido Lenis e' solo da computer, le animazioni legate allo scroll
+       sono disattivate su mobile e la mappa parte solo quando serve.
+       Sul telefono ora la pagina parte subito, senza nulla da attendere. */
+    window.loadScript = function(src, cb) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.crossOrigin = 'anonymous';
+      s.referrerPolicy = 'no-referrer';
+      s.onload = cb;
+      s.onerror = cb;
+      document.head.appendChild(s);
+    };
+  </script>
+  <script>
+    function boot() {
       'use strict';
       /* rete di sicurezza: qualunque errore non deve mai lasciare la pagina nera */
       addEventListener('error', function(ev) {
@@ -3940,9 +3963,29 @@
         if (!stage) return;
 
         function eager() {
-          stage.querySelectorAll('img[loading="lazy"]').forEach(function(im) {
-            im.loading = 'eager';
-          });
+          /* a gruppi di 4: scaricarle tutte insieme saturava la rete
+             proprio mentre arrivavano i fotogrammi della discesa */
+          var list = [].slice.call(stage.querySelectorAll('img[loading="lazy"]')),
+            k = 0;
+          (function step() {
+            var batch = list.slice(k, k + 4);
+            if (!batch.length) return;
+            k += 4;
+            var left = batch.length;
+            batch.forEach(function(im) {
+              var done = function() {
+                if (--left === 0) step();
+              };
+              if (im.complete) return done();
+              im.addEventListener('load', done, {
+                once: true
+              });
+              im.addEventListener('error', done, {
+                once: true
+              });
+              im.loading = 'eager';
+            });
+          })();
         }
         if ('IntersectionObserver' in window) {
           var io = new IntersectionObserver(function(en) {
@@ -4082,6 +4125,28 @@
         });
       });
 
+    }
+
+    /* Su telefono si parte subito. Su computer si attendono GSAP e Lenis,
+       che servono per le animazioni e lo scorrimento smorzato. */
+    (function() {
+      if (matchMedia('(hover: none)').matches || innerWidth < 1024) {
+        boot();
+        return;
+      }
+      var urls = [
+        'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js',
+        'https://unpkg.com/lenis@1.1.14/dist/lenis.min.js'
+      ];
+      var i = 0;
+      (function next() {
+        if (i >= urls.length) {
+          boot();
+          return;
+        }
+        window.loadScript(urls[i++], next);
+      })();
     })();
   </script>
 
@@ -4097,6 +4162,22 @@
       function initMap() {
         if (started) return;
         started = true;
+        /* Leaflet (148 KB) e il suo foglio di stile arrivano solo adesso,
+           non piu' all'apertura della pagina. */
+        if (typeof L === 'undefined') {
+          var css = document.createElement('link');
+          css.rel = 'stylesheet';
+          css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+          css.crossOrigin = 'anonymous';
+          css.referrerPolicy = 'no-referrer';
+          document.head.appendChild(css);
+          window.loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', build);
+        } else {
+          build();
+        }
+      }
+
+      function build() {
       try {
         if (typeof L !== 'undefined') {
           var COORDS = [43.5080, 11.7170],
@@ -4159,8 +4240,6 @@
           rootMargin: '900px 0px'
         });
         io.observe(sec);
-        /* rete di sicurezza: comunque attiva dopo l'apertura della pagina */
-        setTimeout(initMap, 12000);
       } else {
         initMap();
       }
