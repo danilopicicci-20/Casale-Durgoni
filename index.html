@@ -669,6 +669,20 @@
       opacity: 1
     }
 
+    /* Dissolvenza del titolo durante la discesa (solo telefono).
+       Su computer gli stessi valori sono legati alla corsa dello scroll;
+       qui li segue il video, con una transizione CSS: nessun calcolo in
+       JavaScript mentre l'animazione e' in corso. */
+    html.vidmode .hero-content {
+      transition: opacity 1.7s linear .55s, transform 1.7s linear .55s
+    }
+
+    html.vidmode.vidplay .hero-content {
+      opacity: 0;
+      transform: translate3d(0, -70px, 0);
+      pointer-events: none
+    }
+
     /* su telefono comanda il video, il canvas non viene nemmeno usato */
     html.vidmode #heroVid {
       display: block
@@ -3758,6 +3772,9 @@
         if (!heroVid) return;
         heroVid.classList.add('on');
         var pr = heroVid.play();
+        if (pr && pr.then) pr.then(function() {
+          document.documentElement.classList.add('vidplay');
+        });
         if (pr && pr.catch) pr.catch(function() {
           /* riproduzione automatica negata (risparmio energetico iOS):
              resta il poster e la targa arriva comunque */
@@ -3800,11 +3817,16 @@
               } catch (_) {}
               endOn = false;
               document.documentElement.classList.remove('vidend');
+              document.documentElement.classList.remove('vidplay');
               if (heroEnd) heroEnd.classList.remove('on');
               armed = true;
             } else if (r > 0.6 && armed) {
               armed = false;
-              heroVid.play().catch(function() {
+              var p2 = heroVid.play();
+              if (p2 && p2.then) p2.then(function() {
+                document.documentElement.classList.add('vidplay');
+              });
+              if (p2 && p2.catch) p2.catch(function() {
                 heroArrived();
               });
             }
