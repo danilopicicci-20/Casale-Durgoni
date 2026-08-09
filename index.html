@@ -1650,8 +1650,20 @@
     #map {
       position: absolute;
       inset: 0;
-      z-index: 2;
-      filter: saturate(.85) sepia(.14)
+      z-index: 2
+    }
+
+    /* Il tono caldo della mappa prima veniva da un filtro CSS applicato a
+       tutto #map: il browser lo ricalcolava sull'intera superficie ad ogni
+       tessera caricata, ad ogni spostamento e ad ogni pulsazione del
+       segnaposto. Qui e' una semplice velatura sovrapposta: stesso
+       risultato visivo, costo praticamente nullo. */
+    .mapbox .warm {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      background: linear-gradient(rgba(74, 56, 30, .30), rgba(74, 56, 30, .30))
     }
 
     .map-off {
@@ -1793,7 +1805,15 @@
       inset: -12px;
       border-radius: 50%;
       border: 1px solid rgba(201, 164, 104, .55);
-      animation: ring 2.4s ease-out infinite
+      animation: ring 2.4s ease-out infinite;
+      /* isola l'animazione: non forza il ridisegno di cio' che ha intorno */
+      will-change: transform, opacity;
+      contain: strict
+    }
+
+    /* pulsa solo mentre la mappa e' davvero sullo schermo */
+    .mapbox:not(.live) .lux-ring {
+      animation-play-state: paused
     }
 
     @keyframes ring {
@@ -3099,6 +3119,7 @@
             <em>La mappa interattiva si attiva con una connessione a internet</em>
           </div>
           <div id="map"></div>
+          <div class="warm" aria-hidden="true"></div>
           <div class="tag"><b>Casale Durgoni</b><span>Posizione indicativa — l'indirizzo esatto viene comunicato alla prenotazione</span></div>
           <div class="hint" id="mapHint"><span>Tocca o clicca per esplorare</span></div>
         </div>
@@ -4380,10 +4401,25 @@
             ZOOM = 12;
           var map = L.map('map', {
             scrollWheelZoom: false,
-            zoomControl: true
+            zoomControl: true,
+            /* Le animazioni interne di Leaflet (dissolvenza delle tessere,
+               zoom animato) ridisegnano di continuo mentre si scorre la
+               pagina: qui non aggiungono nulla e costano parecchio. */
+            fadeAnimation: false,
+            zoomAnimation: false,
+            markerZoomAnimation: false,
+            /* il cerchio dorato viene disegnato su canvas invece che in SVG */
+            preferCanvas: true
           }).setView(COORDS, ZOOM);
-          L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
             maxZoom: 19,
+            /* niente tessere a doppia risoluzione: erano quattro volte i
+               pixel da scaricare e comporre, invisibili a questa scala */
+            detectRetina: false,
+            /* si aggiorna a movimento finito, non durante il trascinamento */
+            updateWhenIdle: true,
+            updateWhenZooming: false,
+            keepBuffer: 1,
             attribution: '&copy; OpenStreetMap &copy; CARTO'
           }).addTo(map);
           L.circle(COORDS, {
@@ -4426,6 +4462,7 @@
       }
 
       var sec = document.getElementById('territorio');
+      var box = document.querySelector('.mapbox');
       if (sec && 'IntersectionObserver' in window) {
         var io = new IntersectionObserver(function(en) {
           if (en[0].isIntersecting) {
@@ -4436,7 +4473,18 @@
           rootMargin: '900px 0px'
         });
         io.observe(sec);
+        /* Il segnaposto pulsa solo mentre la mappa e' sullo schermo:
+           prima animava in permanenza, e ogni pulsazione ridisegnava
+           l'intera mappa. */
+        if (box) {
+          new IntersectionObserver(function(en) {
+            box.classList.toggle('live', en[0].isIntersecting);
+          }, {
+            rootMargin: '120px 0px'
+          }).observe(box);
+        }
       } else {
+        if (box) box.classList.add('live');
         initMap();
       }
     })();
