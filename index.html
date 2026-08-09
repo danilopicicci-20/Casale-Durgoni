@@ -106,7 +106,7 @@
   <title>Casale Durgoni — Villa leopoldina con piscina privata · Laterina, Arezzo</title>
   <meta name="description" content="Autentica villa leopoldina ai piedi del borgo di Laterina, alle porte di Arezzo. Piscina privata ad uso esclusivo, parco ombreggiato e tre appartamenti indipendenti.">
   <link rel="preload" as="image" href="frames/poster.jpg" fetchpriority="high">
-  <link rel="preload" as="image" href="frames/hi/001.webp" media="(min-width:1024px) and (hover:hover)">
+  <link rel="preload" as="image" href="frames/pc/001.webp" media="(min-width:1024px) and (hover:hover)">
   <link rel="preload" as="video" href="vid/piscina.mp4" media="(max-width:1023px),(hover:none)">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3457,8 +3457,12 @@
       var heroVid = document.getElementById('heroVid');
       if (vidMode) document.documentElement.classList.add('vidmode');
 
-      var FDIR = 'frames/hi/',
-        N_MF = 121,
+      /* Set desktop dedicato: 81 fotogrammi gia' ritagliati nel formato
+         dello schermo (1280x720). Prima erano 121 immagini 1280x964, di
+         cui un quarto dei pixel finiva fuori dal canvas: 570 MB di
+         memoria contro i 285 di adesso. */
+      var FDIR = 'frames/pc/',
+        N_MF = 81,
         FSTEP = 1;
 
       function frameURL(i) {
@@ -3610,6 +3614,17 @@
         var dpr = Math.min(devicePixelRatio || 1, touch ? 1.25 : 1.6);
         var w = Math.round(canvas.clientWidth * dpr);
         var h = Math.round(canvas.clientHeight * dpr);
+        /* Tetto alla risoluzione di disegno.
+           Su uno schermo retina il canvas arrivava a 4096 px di larghezza
+           e ad ogni movimento di scroll l'immagine da 1280 px veniva
+           ingrandita 3,2 volte: era questo a far scattare la discesa.
+           Si disegna al massimo a 1440 px e l'ingrandimento fino allo
+           schermo lo fa la scheda grafica, che lo esegue gratuitamente. */
+        var MAXW = 1440;
+        if (w > MAXW) {
+          h = Math.round(h * MAXW / w);
+          w = MAXW;
+        }
         if (w === cw && h === ch) return;
         /* su iOS la barra degli indirizzi che si ritrae cambia l'altezza
            di pochi pixel mentre si scorre: rifare il canvas in quel
@@ -3619,7 +3634,7 @@
         cw = canvas.width = w;
         ch = canvas.height = h;
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'medium';
+        ctx.imageSmoothingQuality = 'low';
         if (lastDrawn >= 0) drawFrame(lastDrawn);
         dirty = true;
       }
