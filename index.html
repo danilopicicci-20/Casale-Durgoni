@@ -592,12 +592,25 @@
 
     /* selettore di lingua: quella attiva in oro, l'altra nello stesso
        colore della scritta Durgoni */
+    .navright {
+      display: flex;
+      align-items: center;
+      gap: 16px
+    }
+
     .langsw {
       display: flex;
       align-items: center;
-      gap: 7px;
-      margin-left: auto;
-      margin-right: 14px
+      gap: 7px
+    }
+
+    /* Il gruppo di link e' agganciato alla meta' esatta della barra:
+       cosi' resta centrato sullo schermo qualunque sia la larghezza del
+       logo a sinistra e del blocco lingua + Prenota a destra. */
+    nav .pill.links {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%)
     }
 
     .langsw .lang {
@@ -631,8 +644,13 @@
     }
 
     @media (max-width:900px) {
-      .langsw {
-        margin-right: 10px
+      nav .pill.links {
+        position: static;
+        transform: none
+      }
+
+      .navright {
+        gap: 12px
       }
 
       .langsw .lang {
@@ -2758,12 +2776,14 @@
       <a href="#esterni" data-en="Outdoors">Esterni</a>
       <a href="#territorio" data-en="The Area">Territorio</a>
     </div>
-    <div class="langsw" role="group" aria-label="Lingua / Language">
-      <button type="button" class="lang on" data-lang="it" aria-pressed="true">IT</button>
-      <span class="sep" aria-hidden="true">/</span>
-      <button type="button" class="lang" data-lang="en" aria-pressed="false">EN</button>
+    <div class="navright">
+      <div class="langsw" role="group" aria-label="Lingua / Language">
+        <button type="button" class="lang on" data-lang="it" aria-pressed="true">IT</button>
+        <span class="sep" aria-hidden="true">/</span>
+        <button type="button" class="lang" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <a class="cta-mini mag" href="#prenota" data-en="Book">Prenota</a>
     </div>
-    <a class="cta-mini mag" href="#prenota" data-en="Book">Prenota</a>
   </nav>
 
   <!-- HERO: video della piscina controllato dallo scrolling, con scritta Casale Durgoni in stile logo -->
