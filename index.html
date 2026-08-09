@@ -3770,20 +3770,37 @@
         heroVid.addEventListener('canplay', open, {
           once: true
         });
-        heroVid.addEventListener('ended', heroArrived, {
-          once: true
-        });
+        heroVid.addEventListener('ended', heroArrived);
         /* rete di sicurezza: la targa compare comunque poco dopo la
            durata del video, anche se l'evento non arrivasse */
         setTimeout(heroArrived, 7200);
-        /* fuori dallo schermo il video si ferma: niente batteria sprecata */
+        /* Ritorno in cima: la discesa riparte dall'alto.
+           Il riavvolgimento avviene quando l'hero e' gia' fuori campo per
+           oltre il 90%, cosi' il salto all'inizio non si vede: quando si
+           torna su, l'immagine e' gia' quella aerea e parte la discesa.
+           Le due soglie diverse evitano che un micro-movimento a meta'
+           schermo faccia ripartire il video di continuo. */
         if ('IntersectionObserver' in window) {
+          var armed = false;
           new IntersectionObserver(function(en) {
-            if (en[0].isIntersecting) {
-              if (heroVid.paused && !heroVid.ended) heroVid.play().catch(function() {});
-            } else if (!heroVid.paused) heroVid.pause();
+            var r = en[0].intersectionRatio;
+            if (r < 0.1) {
+              if (!heroVid.paused) heroVid.pause();
+              try {
+                heroVid.currentTime = 0;
+              } catch (_) {}
+              endOn = false;
+              document.documentElement.classList.remove('vidend');
+              if (heroEnd) heroEnd.classList.remove('on');
+              armed = true;
+            } else if (r > 0.6 && armed) {
+              armed = false;
+              heroVid.play().catch(function() {
+                heroArrived();
+              });
+            }
           }, {
-            threshold: 0.05
+            threshold: [0, 0.1, 0.6, 1]
           }).observe(heroVid);
         }
         heroVid.addEventListener('error', open, {
