@@ -8,7 +8,7 @@
                     CTA, FOOTER, LIGHTBOX)
        3. SCRIPT : logica interattiva (scroll fluido Lenis, discesa in
                     piscina legata allo scrolling, animazioni GSAP,
-                    galleria, mappa Leaflet, lightbox)
+                    galleria, mappa vettoriale, lightbox)
      Nota: la discesa in piscina è una sequenza di 121 fotogrammi WebP
      nella cartella "frames" (frames/hi = computer, frames/lo = telefoni,
      frames/poster.jpg = immagine di riserva). La cartella deve essere
@@ -55,11 +55,11 @@
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://unpkg.com;
-    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' https://fonts.gstatic.com data:;
-    img-src 'self' data: blob: https://*.basemaps.cartocdn.com https://unpkg.com;
+    img-src 'self' data: blob:;
     media-src 'self' data: blob:;
-    connect-src 'self' https://*.basemaps.cartocdn.com;
+    connect-src 'self';
     object-src 'none';
     base-uri 'self';
     form-action 'none';
@@ -1647,23 +1647,45 @@
       box-shadow: 0 30px 80px rgba(0, 0, 0, .5)
     }
 
-    #map {
+    .lux-map {
       position: absolute;
       inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
       z-index: 2
     }
 
-    /* Il tono caldo della mappa prima veniva da un filtro CSS applicato a
-       tutto #map: il browser lo ricalcolava sull'intera superficie ad ogni
-       tessera caricata, ad ogni spostamento e ad ogni pulsazione del
-       segnaposto. Qui e' una semplice velatura sovrapposta: stesso
-       risultato visivo, costo praticamente nullo. */
-    .mapbox .warm {
+    /* unico elemento animato della mappa, isolato dal resto */
+    .lux-halo {
+      transform-origin: 500px 322px;
+      animation: ring 2.8s ease-out infinite;
+      will-change: transform, opacity
+    }
+
+    .mapbox:not(.live) .lux-halo {
+      animation-play-state: paused
+    }
+
+    .mapopen {
       position: absolute;
-      inset: 0;
-      z-index: 3;
-      pointer-events: none;
-      background: linear-gradient(rgba(74, 56, 30, .30), rgba(74, 56, 30, .30))
+      right: 16px;
+      bottom: 16px;
+      z-index: 500;
+      font-size: 10.5px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--champ);
+      padding: 11px 18px;
+      border-radius: 100px;
+      background: rgba(16, 12, 8, .62);
+      border: 1px solid var(--stroke);
+      transition: background .3s, color .3s
+    }
+
+    .mapopen:hover {
+      background: rgba(16, 12, 8, .86);
+      color: #fff
     }
 
     .map-off {
@@ -3109,19 +3131,89 @@
       <h2 class="big rvfade">Ai piedi del borgo di <em>Laterina</em>.</h2>
       <div class="tgrid">
         <div class="mapbox rvfade">
-          <div class="map-off" id="mapOff">
-            <div class="lux-pin-wrap" style="position:relative;width:20px;height:20px">
-              <div class="lux-ring"></div>
-              <div class="lux-pin"></div>
-            </div>
-            <b>Casale Durgoni</b>
-            <span>Laterina · Arezzo · Toscana</span>
-            <em>La mappa interattiva si attiva con una connessione a internet</em>
-          </div>
-          <div id="map"></div>
-          <div class="warm" aria-hidden="true"></div>
+          <!-- Mappa vettoriale disegnata su misura: le sei localita' sono
+               posizionate alla loro direzione e distanza reali rispetto al
+               casale (proiezione centrata su Laterina). Non scarica tessere
+               da nessun server: e' un disegno, quindi non puo' rallentare. -->
+          <svg class="lux-map" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mappa dei dintorni: Casale Durgoni a Laterina, con Arezzo, Cortona, Chianti, Firenze, Siena e Val d'Orcia">
+        <defs>
+          <radialGradient id="mglow" cx="50%" cy="50%">
+            <stop offset="0%" stop-color="#c9a468" stop-opacity=".26"/>
+            <stop offset="60%" stop-color="#c9a468" stop-opacity=".05"/>
+            <stop offset="100%" stop-color="#c9a468" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="mbg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#14100b"/>
+            <stop offset="100%" stop-color="#0c0a07"/>
+          </linearGradient>
+        </defs>
+        <rect width="1000" height="640" fill="url(#mbg)"/>
+        <g stroke="#dac6a0" stroke-opacity=".05" fill="none">
+          <path d="M-20 118C150 96 300 150 470 128S800 74 1020 106"/>
+          <path d="M-20 214C170 190 320 246 500 222S830 168 1020 200"/>
+          <path d="M-20 400C160 376 330 430 510 404S840 352 1020 384"/>
+          <path d="M-20 508C180 486 340 538 520 512S850 460 1020 492"/>
+        </g>
+        <circle cx="500" cy="322" r="290" fill="url(#mglow)"/>
+        <g fill="none" stroke="#c9a468" stroke-opacity=".16">
+          <circle cx="500" cy="322" r="83.3"/>
+          <circle cx="500" cy="322" r="166.7"/>
+          <circle cx="500" cy="322" r="250"/>
+        </g>
+        <g fill="#dac6a0" fill-opacity=".34" font-family="Jost,system-ui,sans-serif" font-size="11" letter-spacing="2.4">
+          <text x="508" y="248">15 KM</text>
+          <text x="508" y="164">30 KM</text>
+          <text x="508" y="80">45 KM</text>
+        </g>
+        <g stroke="#c9a468" stroke-opacity=".22" stroke-dasharray="3 6">
+          <line x1="500" y1="322" x2="572.9" y2="349.6"/>
+          <line x1="500" y1="322" x2="620.3" y2="466.2"/>
+          <line x1="500" y1="322" x2="320.1" y2="274.1"/>
+          <line x1="500" y1="322" x2="293.1" y2="160.2"/>
+          <line x1="500" y1="322" x2="326.8" y2="439.0"/>
+          <line x1="500" y1="322" x2="483.0" y2="586.9"/>
+        </g>
+        <g font-family="Jost,system-ui,sans-serif">
+          <g fill="#e9d8b4">
+            <circle cx="572.9" cy="349.6" r="4.5"/>
+            <circle cx="620.3" cy="466.2" r="4.5"/>
+            <circle cx="320.1" cy="274.1" r="4.5"/>
+            <circle cx="293.1" cy="160.2" r="4.5"/>
+            <circle cx="326.8" cy="439.0" r="4.5"/>
+            <circle cx="483.0" cy="586.9" r="4.5"/>
+          </g>
+          <g fill="#f1ebdf" font-size="17" letter-spacing="3.4">
+            <text x="586" y="346">AREZZO</text>
+            <text x="634" y="463">CORTONA</text>
+            <text x="306" y="271" text-anchor="end">CHIANTI</text>
+            <text x="279" y="157" text-anchor="end">FIRENZE</text>
+            <text x="313" y="436" text-anchor="end">SIENA</text>
+            <text x="469" y="584" text-anchor="end">VAL D&#8217;ORCIA</text>
+          </g>
+          <g fill="#c9a468" font-size="12.5" letter-spacing="2.6">
+            <text x="586" y="366">~20 MIN</text>
+            <text x="634" y="483">~35 MIN</text>
+            <text x="306" y="291" text-anchor="end">~45 MIN</text>
+            <text x="279" y="177" text-anchor="end">~1 H</text>
+            <text x="313" y="456" text-anchor="end">~1 H 5 MIN</text>
+            <text x="469" y="604" text-anchor="end">~1 H 12 MIN</text>
+          </g>
+        </g>
+        <g>
+          <circle class="lux-halo" cx="500" cy="322" r="17" fill="none" stroke="#c9a468" stroke-opacity=".65"/>
+          <circle cx="500" cy="322" r="7.5" fill="#e9d8b4"/>
+          <circle cx="500" cy="322" r="13" fill="none" stroke="#c9a468" stroke-opacity=".45"/>
+        </g>
+        <g font-family="Cormorant Garamond,serif" fill="#f1ebdf">
+          <text x="500" y="286" text-anchor="middle" font-size="25" letter-spacing="1.5">Casale Durgoni</text>
+        </g>
+        <g font-family="Jost,system-ui,sans-serif" fill="#dac6a0" fill-opacity=".55" font-size="11.5" letter-spacing="3">
+          <text x="500" y="356" text-anchor="middle">LATERINA &#183; AREZZO</text>
+          <text x="960" y="66" text-anchor="end">N &#8593;</text>
+        </g>
+      </svg>
           <div class="tag"><b>Casale Durgoni</b><span>Posizione indicativa — l'indirizzo esatto viene comunicato alla prenotazione</span></div>
-          <div class="hint" id="mapHint"><span>Tocca o clicca per esplorare</span></div>
+          <a class="mapopen" href="https://www.google.com/maps/search/?api=1&amp;query=43.5080,11.7170" target="_blank" rel="noopener noreferrer">Apri in Google Maps ↗</a>
         </div>
         <div class="body rvfade">
           <p>Alle porte di Arezzo, ai piedi del suggestivo borgo di Laterina, la villa è il punto di partenza ideale per vivere la Toscana in tutta la sua autenticità.</p>
@@ -4201,6 +4293,23 @@
         }
       })();
 
+      /* ---------- mappa: alone del segnaposto ---------- */
+  /* Unico elemento animato della mappa: pulsa solo mentre e' sullo
+     schermo, cosi' fuori sezione non costa nulla. */
+      (function() {
+        var box = document.querySelector('.mapbox');
+        if (!box) return;
+        if (!('IntersectionObserver' in window)) {
+          box.classList.add('live');
+          return;
+        }
+        new IntersectionObserver(function(en) {
+          box.classList.toggle('live', en[0].isIntersecting);
+        }, {
+          rootMargin: '120px 0px'
+        }).observe(box);
+      })();
+
       /* ---------- striscia scorrevole ---------- */
   /* Scorre solo mentre e' sullo schermo. Una animazione infinita tiene
      sveglio il compositore anche quando non la si vede: sospenderla
@@ -4367,128 +4476,6 @@
     })();
   </script>
 
-  <script>
-    /* mappa — autonoma.
-       Non si avvia piu' al caricamento della pagina: scaricava le tessere
-       e costruiva la mappa proprio mentre arrivavano i fotogrammi della
-       discesa, rubando rete e CPU nei primi secondi. Ora parte solo
-       quando la sezione Territorio si avvicina allo schermo. */
-    (function() {
-      var started = false;
-
-      function initMap() {
-        if (started) return;
-        started = true;
-        /* Leaflet (148 KB) e il suo foglio di stile arrivano solo adesso,
-           non piu' all'apertura della pagina. */
-        if (typeof L === 'undefined') {
-          var css = document.createElement('link');
-          css.rel = 'stylesheet';
-          css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-          css.crossOrigin = 'anonymous';
-          css.referrerPolicy = 'no-referrer';
-          document.head.appendChild(css);
-          window.loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', build);
-        } else {
-          build();
-        }
-      }
-
-      function build() {
-      try {
-        if (typeof L !== 'undefined') {
-          var COORDS = [43.5080, 11.7170],
-            ZOOM = 12;
-          var map = L.map('map', {
-            scrollWheelZoom: false,
-            zoomControl: true,
-            /* Le animazioni interne di Leaflet (dissolvenza delle tessere,
-               zoom animato) ridisegnano di continuo mentre si scorre la
-               pagina: qui non aggiungono nulla e costano parecchio. */
-            fadeAnimation: false,
-            zoomAnimation: false,
-            markerZoomAnimation: false,
-            /* il cerchio dorato viene disegnato su canvas invece che in SVG */
-            preferCanvas: true
-          }).setView(COORDS, ZOOM);
-          L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            /* niente tessere a doppia risoluzione: erano quattro volte i
-               pixel da scaricare e comporre, invisibili a questa scala */
-            detectRetina: false,
-            /* si aggiorna a movimento finito, non durante il trascinamento */
-            updateWhenIdle: true,
-            updateWhenZooming: false,
-            keepBuffer: 1,
-            attribution: '&copy; OpenStreetMap &copy; CARTO'
-          }).addTo(map);
-          L.circle(COORDS, {
-            radius: 700,
-            color: '#dcc38d',
-            weight: 1.4,
-            fillColor: '#dcc38d',
-            fillOpacity: .14
-          }).addTo(map);
-          var icon = L.divIcon({
-            className: 'lux-pin-wrap',
-            html: '<div class="lux-ring"></div><div class="lux-pin"></div>',
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
-          });
-          L.marker(COORDS, {
-            icon: icon
-          }).addTo(map).bindPopup('<b>Casale Durgoni</b><br><span style="font-size:12px;opacity:.75">Laterina · Arezzo · Toscana</span>');
-          document.getElementById('mapOff').style.display = 'none';
-          var hint = document.getElementById('mapHint');
-          hint.style.display = 'flex';
-          map.on('click', function() {
-            map.scrollWheelZoom.enable();
-            hint.classList.add('off');
-          });
-          document.getElementById('map').addEventListener('mouseleave', function() {
-            map.scrollWheelZoom.disable();
-          });
-          setTimeout(function() {
-            map.invalidateSize();
-          }, 600);
-          setTimeout(function() {
-            map.invalidateSize();
-          }, 2000);
-          addEventListener('resize', function() {
-            map.invalidateSize();
-          });
-        }
-      } catch (e) {}
-      }
-
-      var sec = document.getElementById('territorio');
-      var box = document.querySelector('.mapbox');
-      if (sec && 'IntersectionObserver' in window) {
-        var io = new IntersectionObserver(function(en) {
-          if (en[0].isIntersecting) {
-            io.disconnect();
-            initMap();
-          }
-        }, {
-          rootMargin: '900px 0px'
-        });
-        io.observe(sec);
-        /* Il segnaposto pulsa solo mentre la mappa e' sullo schermo:
-           prima animava in permanenza, e ogni pulsazione ridisegnava
-           l'intera mappa. */
-        if (box) {
-          new IntersectionObserver(function(en) {
-            box.classList.toggle('live', en[0].isIntersecting);
-          }, {
-            rootMargin: '120px 0px'
-          }).observe(box);
-        }
-      } else {
-        if (box) box.classList.add('live');
-        initMap();
-      }
-    })();
-  </script>
 </body>
 
 </html>
