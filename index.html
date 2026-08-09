@@ -107,10 +107,7 @@
   <meta name="description" content="Autentica villa leopoldina ai piedi del borgo di Laterina, alle porte di Arezzo. Piscina privata ad uso esclusivo, parco ombreggiato e tre appartamenti indipendenti.">
   <link rel="preload" as="image" href="frames/poster.jpg" fetchpriority="high">
   <link rel="preload" as="image" href="frames/hi/001.webp" media="(min-width:1024px) and (hover:hover)">
-  <link rel="preload" as="image" href="frames/mob/001.webp" media="(max-width:1023px),(hover:none)">
-  <link rel="preload" as="image" href="frames/mob/002.webp" media="(max-width:1023px),(hover:none)">
-  <link rel="preload" as="image" href="frames/mob/006.webp" media="(max-width:1023px),(hover:none)">
-  <link rel="preload" as="image" href="frames/mob/011.webp" media="(max-width:1023px),(hover:none)">
+  <link rel="preload" as="video" href="vid/piscina.mp4" media="(max-width:1023px),(hover:none)">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- I caratteri non bloccano piu' il primo disegno: si caricano in
@@ -639,6 +636,31 @@
       position: absolute;
       inset: 0;
       background: url('frames/poster.jpg') center/cover no-repeat
+    }
+
+    #heroVid {
+      display: none;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity .5s ease;
+      pointer-events: none
+    }
+
+    #heroVid.on {
+      opacity: 1
+    }
+
+    /* su telefono comanda il video, il canvas non viene nemmeno usato */
+    html.vidmode #heroVid {
+      display: block
+    }
+
+    html.vidmode #heroCanvas {
+      display: none
     }
 
     #heroCanvas {
@@ -2580,6 +2602,22 @@
         -webkit-backdrop-filter: none !important
       }
 
+      /* Animazioni continue ferme: ognuna tiene sveglio il compositore
+         anche quando non e' sullo schermo, rubando fluidita' allo scroll.
+         La striscia di testo diventa una riga statica leggibile. */
+      .marq .row,
+      .cue i,
+      .lux-ring,
+      .hb-halo,
+      .ld-mark::before {
+        animation: none !important
+      }
+
+      .aura i,
+      .grain {
+        display: none !important
+      }
+
       /* i contenuti non dipendono mai dalle animazioni: visibili subito */
       .rvfade {
         opacity: 1 !important;
@@ -2688,6 +2726,12 @@
   <div class="hero-wrap" id="top">
     <header class="hero">
       <div class="hero-fallback"></div>
+      <!-- Sui telefoni la discesa e' un video: la decodifica la fa il chip
+           video, quindi resta fluida qualunque cosa faccia lo scroll. Su
+           computer resta il canvas legato al movimento del dito/rotella. -->
+      <video id="heroVid" playsinline muted autoplay preload="none"
+             poster="frames/poster.jpg" disablepictureinpicture
+             disableremoteplayback aria-hidden="true"></video>
       <canvas id="heroCanvas"></canvas>
       <div class="hero-veil"></div>
       <div class="hero-content" id="heroContent">
@@ -3270,16 +3314,18 @@
          4,2 MB a 1,8 MB. Era l'eccesso di memoria a far scartare a Safari
          le immagini gia' caricate, con i blocchi nella discesa e le foto
          della galleria che sparivano. */
-      var FDIR, N_MF, FSTEP;
-      if (lowPower) {
-        FDIR = 'frames/mob/';
-        N_MF = 41;
+      /* vidMode: sui telefoni la discesa e' affidata al video, quindi non
+         viene scaricato nemmeno un fotogramma e il ciclo di disegno non
+         parte. Era il ridisegno del canvas ad ogni movimento di scroll a
+         non poter reggere: durante lo scorrimento per inerzia iOS
+         rallenta il JavaScript per dare priorita' allo scorrimento. */
+      var vidMode = lowPower;
+      var heroVid = document.getElementById('heroVid');
+      if (vidMode) document.documentElement.classList.add('vidmode');
+
+      var FDIR = 'frames/hi/',
+        N_MF = 121,
         FSTEP = 1;
-      } else {
-        FDIR = 'frames/hi/';
-        N_MF = 121;
-        FSTEP = 1;
-      }
 
       function frameURL(i) {
         var n = String(i * FSTEP + 1);
@@ -3359,6 +3405,7 @@
       }
 
       function pump() {
+        if (vidMode) return;
         while (inFlight < MAXP && queue.length) {
           load(takeNext());
         }
@@ -3498,12 +3545,15 @@
         if (prog < 0) prog = 0;
         else if (prog > 1) prog = 1;
 
-        /* la posizione di scroll comanda direttamente il fotogramma */
-        var idx = Math.round(prog * (N_MF - 1));
-        wantIdx = idx;
-        if (idx !== lastDrawn) {
-          var use = nearestReady(idx);
-          if (use >= 0 && use !== lastDrawn) drawFrame(use);
+        /* la posizione di scroll comanda direttamente il fotogramma
+           (solo su computer: su telefono c'e' il video) */
+        if (!vidMode) {
+          var idx = Math.round(prog * (N_MF - 1));
+          wantIdx = idx;
+          if (idx !== lastDrawn) {
+            var use = nearestReady(idx);
+            if (use >= 0 && use !== lastDrawn) drawFrame(use);
+          }
         }
 
 
@@ -3597,6 +3647,7 @@
         loader.classList.add('off');
         dirty = true;
         if (lastDrawn >= 0 && heroFallback) heroFallback.style.display = 'none';
+        if (vidMode && heroVid) startVideo();
         if (hasGsap && !reduced && !lowPower) {
           var lts = document.querySelectorAll('#heroTitle .lt');
           gsap.fromTo(lts, {
@@ -3669,7 +3720,42 @@
         h.innerHTML = out;
       })();
 
+      /* Avvio del video (solo telefoni).
+         Il file arriva mentre la schermata di caricamento e' ancora
+         davanti; se la rete e' lenta si parte comunque col poster, e il
+         video compare appena pronto. */
+      function startVideo() {
+        if (!heroVid) return;
+        heroVid.classList.add('on');
+        var pr = heroVid.play();
+        if (pr && pr.catch) pr.catch(function() {});
+      }
+
+      if (vidMode && heroVid) {
+        heroVid.preload = 'auto';
+        heroVid.src = 'vid/piscina.mp4';
+        heroVid.load();
+        var opened = false,
+          open = function() {
+            if (opened) return;
+            opened = true;
+            clearInterval(ldTimer);
+            reveal();
+          };
+        heroVid.addEventListener('canplay', open, {
+          once: true
+        });
+        heroVid.addEventListener('error', open, {
+          once: true
+        });
+        setTimeout(open, 1800);
+      }
+
       var ldTimer = setInterval(function() {
+        if (vidMode) {
+          if (ldRing) ldRing.style.strokeDashoffset = '0';
+          return;
+        }
         var p = Math.min(1, loadedCount / PRELOAD_F);
         if (ldRing) ldRing.style.strokeDashoffset = (LD_C * (1 - p)).toFixed(1);
         if (p >= 1 && ready[0]) {
