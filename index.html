@@ -2615,13 +2615,22 @@
 
       /* Animazioni continue ferme: ognuna tiene sveglio il compositore
          anche quando non e' sullo schermo, rubando fluidita' allo scroll.
-         La striscia di testo diventa una riga statica leggibile. */
-      .marq .row,
+         La striscia di testo fa eccezione — scorre, ma solo mentre e'
+         davvero visibile (vedi 'striscia' nello script). */
       .cue i,
       .lux-ring,
       .hb-halo,
       .ld-mark::before {
         animation: none !important
+      }
+
+      /* di riposo finche' non entra nello schermo */
+      .marq .row {
+        animation-play-state: paused
+      }
+
+      .marq.run .row {
+        animation-play-state: running
       }
 
       .aura i,
@@ -4144,6 +4153,24 @@
         } else {
           eager();
         }
+      })();
+
+      /* ---------- striscia scorrevole ---------- */
+  /* Scorre solo mentre e' sullo schermo. Una animazione infinita tiene
+     sveglio il compositore anche quando non la si vede: sospenderla
+     fuori campo la rende gratuita nel resto della pagina. */
+      (function() {
+        var marq = document.querySelector('.marq');
+        if (!marq) return;
+        if (!('IntersectionObserver' in window)) {
+          marq.classList.add('run');
+          return;
+        }
+        new IntersectionObserver(function(en) {
+          marq.classList.toggle('run', en[0].isIntersecting);
+        }, {
+          rootMargin: '150px 0px'
+        }).observe(marq);
       })();
 
       /* ---------- lightbox ---------- */
