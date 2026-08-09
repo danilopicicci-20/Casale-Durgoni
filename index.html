@@ -630,6 +630,21 @@
         height: 100vh;
         height: 100lvh
       }
+
+      /* Con il video la corsa di scroll lunga non serve piu': l'hero
+         occupa esattamente uno schermo e scorre via come una sezione
+         normale. Prima restavano quasi due schermate da attraversare a
+         vuoto dopo la fine della discesa. */
+      .hero-wrap {
+        height: 100vh;
+        height: 100lvh
+      }
+
+      /* a video finito l'invito a scorrere lascia il posto alla targa */
+      html.vidend .hero .cue {
+        opacity: 0;
+        transition: opacity .5s ease
+      }
     }
 
     .hero-fallback {
@@ -2163,11 +2178,7 @@
         opacity: .035
       }
 
-      /* Discesa verso la piscina più lenta al tocco: la stessa sequenza si
-         distribuisce su una corsa di scroll più lunga (il desktop resta a 230vh) */
-      .hero-wrap {
-        height: 260vh
-      }
+      /* (l'altezza dell'hero su touch e' definita piu' sopra: uno schermo) */
 
       .hero h1 {
         font-size: clamp(44px, 15vw, 92px);
@@ -3557,7 +3568,10 @@
         }
 
 
-        if (revealed) {
+        /* Su computer titolo e targa seguono la corsa dello scroll.
+           Su telefono l'hero e' alto uno schermo e scorre via da solo:
+           la targa finale la comanda il video, non lo scroll. */
+        if (revealed && !vidMode) {
           var t = Math.min(1, prog / 0.36);
           if (Math.abs(t - lastFadeT) > 0.004) {
             lastFadeT = t;
@@ -3724,11 +3738,22 @@
          Il file arriva mentre la schermata di caricamento e' ancora
          davanti; se la rete e' lenta si parte comunque col poster, e il
          video compare appena pronto. */
+      function heroArrived() {
+        if (endOn) return;
+        endOn = true;
+        document.documentElement.classList.add('vidend');
+        if (heroEnd) heroEnd.classList.add('on');
+      }
+
       function startVideo() {
         if (!heroVid) return;
         heroVid.classList.add('on');
         var pr = heroVid.play();
-        if (pr && pr.catch) pr.catch(function() {});
+        if (pr && pr.catch) pr.catch(function() {
+          /* riproduzione automatica negata (risparmio energetico iOS):
+             resta il poster e la targa arriva comunque */
+          heroArrived();
+        });
       }
 
       if (vidMode && heroVid) {
@@ -3745,6 +3770,22 @@
         heroVid.addEventListener('canplay', open, {
           once: true
         });
+        heroVid.addEventListener('ended', heroArrived, {
+          once: true
+        });
+        /* rete di sicurezza: la targa compare comunque poco dopo la
+           durata del video, anche se l'evento non arrivasse */
+        setTimeout(heroArrived, 7200);
+        /* fuori dallo schermo il video si ferma: niente batteria sprecata */
+        if ('IntersectionObserver' in window) {
+          new IntersectionObserver(function(en) {
+            if (en[0].isIntersecting) {
+              if (heroVid.paused && !heroVid.ended) heroVid.play().catch(function() {});
+            } else if (!heroVid.paused) heroVid.pause();
+          }, {
+            threshold: 0.05
+          }).observe(heroVid);
+        }
         heroVid.addEventListener('error', open, {
           once: true
         });
