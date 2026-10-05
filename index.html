@@ -20,17 +20,16 @@
 <head>
   <script>
     /* All'aggiornamento della pagina il browser tende a ripristinare la
-       posizione di scroll precedente: la disattiviamo e riportiamo sempre
-       la pagina in cima, sia al caricamento sia quando si torna indietro
-       dalla cache (bfcache). */
+       posizione di scroll precedente: la disattiviamo, cosi' ogni
+       caricamento parte dall'alto, e riportiamo la pagina in cima anche
+       quando si torna indietro dalla cache (bfcache).
+       NON si porta piu' in cima in "beforeunload": faceva saltare la
+       pagina all'inizio un attimo prima di ricaricarla, ed era visibile. */
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     /* Finche' la schermata di caricamento e' visibile lo scroll e' fermo:
        prima si poteva scorrere "alla cieca" e, a caricamento finito, ci
        si ritrovava a meta' discesa senza fotogrammi pronti. */
     document.documentElement.classList.add('lding');
-    addEventListener('beforeunload', function() {
-      window.scrollTo(0, 0);
-    });
     addEventListener('pageshow', function() {
       window.scrollTo(0, 0);
     });
