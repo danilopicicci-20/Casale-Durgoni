@@ -3472,8 +3472,11 @@
        sono gia' pronti;
      - non si "cerca" piu' dentro un video (video.currentTime), che era
        l'operazione che faceva scattare lo scorrimento sul computer;
-     - la posizione dello scroll comanda direttamente il fotogramma, senza
-       inseguimenti smorzati: nessun ritardo fra la mano e l'immagine.
+     - la posizione e' continua: fra un fotogramma e il successivo le
+       due immagini si fondono in dissolvenza, quindi niente gradini;
+     - i fotogrammi sono ImageBitmap gia' decodificati, pronti al disegno;
+     - una testina con smorzamento brevissimo (~45 ms) ammorbidisce anche
+       lo scroll da tastiera o da barra laterale.
 
      Due risoluzioni: "hi" (1280 px) per i computer, "lo" (900 px) per i
      telefoni, scelte in automatico. */
@@ -3592,30 +3595,50 @@
       function load(i) {
         if (frames[i]) return;
         inFlight++;
-        var im = new Image();
-        im.decoding = 'async';
-        frames[i] = im;
+        frames[i] = true;
         var done = function(ok) {
           ready[i] = !!ok;
           loadedCount++;
           inFlight--;
-          if (ok && (lastDrawn < 0 || Math.abs(i - wantIdx) <= 4)) dirty = true;
+          /* ogni arrivo puo' cambiare la coppia di fotogrammi sfumati */
+          if (ok) dirty = true;
           pump();
         };
-        im.onload = function() {
-          /* la decodifica avviene fuori dal thread principale: quando il
-             fotogramma verra' disegnato non ci sara' nessuna pausa */
-          if (im.decode) im.decode().then(function() {
+        /* Metodo classico (riserva): immagine decodificata in anticipo. */
+        var viaImage = function() {
+          var im = new Image();
+          im.decoding = 'async';
+          im.onload = function() {
+            frames[i] = im;
+            if (im.decode) im.decode().then(function() {
+              done(1);
+            }, function() {
+              done(im.naturalWidth ? 1 : 0);
+            });
+            else done(1);
+          };
+          im.onerror = function() {
+            done(0);
+          };
+          im.src = frameURL(i);
+        };
+        /* Metodo principale: ImageBitmap.
+           Il file viene decodificato dal browser in un thread separato e
+           il risultato resta in memoria GIA' PRONTO da disegnare. Con le
+           normali immagini il browser puo' liberare la versione
+           decodificata e rifarla al momento del disegno, proprio mentre si
+           scorre: erano quei millisecondi a produrre gli scatti. */
+        if (window.createImageBitmap && window.fetch) {
+          fetch(frameURL(i)).then(function(r) {
+            if (!r.ok) throw 0;
+            return r.blob();
+          }).then(function(b) {
+            return createImageBitmap(b);
+          }).then(function(bm) {
+            frames[i] = bm;
             done(1);
-          }, function() {
-            done(im.naturalWidth ? 1 : 0);
-          });
-          else done(1);
-        };
-        im.onerror = function() {
-          done(0);
-        };
-        im.src = frameURL(i);
+          }, viaImage);
+        } else viaImage();
       }
       pump();
 
@@ -3623,28 +3646,60 @@
       var cw = 0,
         ch = 0;
 
-      function drawFrame(i) {
+      function blit(i, alpha) {
         var img = frames[i];
-        if (!ready[i] || !img || !img.naturalWidth) return false;
-        var s = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
-        var w = img.naturalWidth * s,
-          h = img.naturalHeight * s;
+        var iw = img.naturalWidth || img.width,
+          ih = img.naturalHeight || img.height;
+        if (!iw) return false;
+        var s = Math.max(cw / iw, ch / ih);
+        var w = iw * s,
+          h = ih * s;
+        ctx.globalAlpha = alpha;
         ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
-        lastDrawn = i;
+        return true;
+      }
+
+      /* Primo fotogramma pronto a sinistra / a destra di una posizione */
+      function readyBelow(i) {
+        for (; i >= 0; i--)
+          if (ready[i]) return i;
+        return -1;
+      }
+
+      function readyAbove(i) {
+        for (; i < N_MF; i++)
+          if (ready[i]) return i;
+        return -1;
+      }
+
+      /* Disegno a posizione CONTINUA (es. 40,37 invece di 40).
+         I due fotogrammi vicini vengono sovrapposti in dissolvenza in
+         proporzione alla distanza: il passaggio da uno all'altro non e'
+         piu' un gradino ma un movimento continuo, a qualunque velocita'
+         di scroll. Se un fotogramma intermedio non e' ancora arrivato si
+         sfuma fra i due piu' vicini disponibili, invece di saltare. */
+      var drawnPos = -1;
+
+      function drawAt(pos) {
+        var a = readyBelow(Math.floor(pos)),
+          b = readyAbove(Math.ceil(pos));
+        if (a < 0 && b < 0) return false;
+        if (a < 0) a = b;
+        if (b < 0) b = a;
+        var t = b > a ? (pos - a) / (b - a) : 0;
+        /* fotogramma "intero": niente sovrapposizione */
+        if (t < 0.004) b = a;
+        else if (t > 0.996) a = b;
+        if (!blit(a, 1)) return false;
+        if (b !== a) blit(b, t);
+        ctx.globalAlpha = 1;
+        lastDrawn = t < 0.5 ? a : b;
+        drawnPos = pos;
         if (!canvasShown) {
           canvasShown = true;
           canvas.style.opacity = '1';
         }
         return true;
-      }
-
-      function nearestReady(i) {
-        if (ready[i]) return i;
-        for (var d = 1; d < N_MF; d++) {
-          if (i - d >= 0 && ready[i - d]) return i - d;
-          if (i + d < N_MF && ready[i + d]) return i + d;
-        }
-        return -1;
       }
 
       function sizeCanvas() {
@@ -3675,7 +3730,7 @@
         ch = canvas.height = h;
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'low';
-        if (lastDrawn >= 0) drawFrame(lastDrawn);
+        if (drawnPos >= 0) drawAt(drawnPos);
         dirty = true;
       }
 
@@ -3715,9 +3770,25 @@
         endOn = false,
         lastFadeT = -1;
 
+      /* Testina di lettura della discesa: posizione continua in
+         fotogrammi, che insegue lo scroll con uno smorzamento brevissimo
+         (circa 45 ms). Con la rotella Lenis smussa gia' il movimento; la
+         testina copre i casi in cui lo scroll arriva "a scatti" (tasti
+         freccia, PagGiu', barra laterale, click sui link) e trasforma
+         anche quelli in una discesa morbida. Lo smorzamento e' legato al
+         tempo reale, non al numero di fotogrammi: stesso effetto su
+         schermi a 60, 120 o 144 Hz. */
+      var head = -1,
+        chasing = false,
+        lastT = 0;
+
       function frameLoop() {
+        var now = performance.now();
+        var dt = lastT ? Math.min(0.1, (now - lastT) / 1000) : 0.016;
+        lastT = now;
         var y = window.pageYOffset || document.documentElement.scrollTop || 0;
-        if (y === lastY && !dirty) return;
+        if (y === lastY && !dirty && !chasing) return;
+        var force = dirty;
         dirty = false;
         lastY = y;
 
@@ -3737,12 +3808,15 @@
         /* la posizione di scroll comanda direttamente il fotogramma
            (solo su computer: su telefono c'e' il video) */
         if (!vidMode) {
-          var idx = Math.round(prog * (N_MF - 1));
-          wantIdx = idx;
-          if (idx !== lastDrawn) {
-            var use = nearestReady(idx);
-            if (use >= 0 && use !== lastDrawn) drawFrame(use);
+          var target = prog * (N_MF - 1);
+          wantIdx = Math.round(target);
+          if (head < 0 || !revealed) head = target;
+          else {
+            head += (target - head) * (1 - Math.exp(-dt * 22));
+            if (Math.abs(target - head) < 0.002) head = target;
           }
+          chasing = head !== target;
+          if (force || Math.abs(head - drawnPos) > 0.0005) drawAt(head);
         }
 
 
@@ -3830,7 +3904,10 @@
       var LD_C = 2 * Math.PI * 94;
       /* Sui telefoni bastano meno fotogrammi per aprire la pagina: i
          restanti continuano ad arrivare mentre si legge il titolo. */
-      var PRELOAD_F = lowPower ? 6 : 16;
+      /* Su computer si apre quando c'e' un fotogramma ogni 4 (21 su 81):
+         la discesa e' gia' completa e, grazie alla dissolvenza fra
+         fotogrammi, gia' morbida; gli altri arrivano in pochi istanti. */
+      var PRELOAD_F = lowPower ? 6 : 21;
 
       function reveal() {
         if (revealed) return;
