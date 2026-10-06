@@ -211,12 +211,25 @@
        fascia oliva profonda (galleria + esterni); i passaggi sono sempre
        sfumati, mai a taglio netto. Banda del nastro e piè di pagina
        usano lo stesso oliva per chiudere il cerchio. */
+    /* Le sfumature usano piu' passaggi con curva "ammorbidita" (smoothstep):
+       a differenza di un gradiente lineare, partono e arrivano piano, e
+       l'occhio non vede dove un colore finisce e l'altro comincia. */
+
+    /* dal nastro oliva all'avorio: ~260px di dissolvenza lenta */
     .mani {
-      background: linear-gradient(180deg, #ede4d6 0%, #e3e4d1 100%)
+      background:
+        linear-gradient(180deg,
+          #4f533c 0, rgba(79, 83, 60, .97) 26px, rgba(79, 83, 60, .88) 52px, rgba(79, 83, 60, .73) 78px,
+          rgba(79, 83, 60, .5) 104px, rgba(79, 83, 60, .27) 130px, rgba(79, 83, 60, .12) 156px,
+          rgba(79, 83, 60, .03) 182px, rgba(79, 83, 60, 0) 260px),
+        linear-gradient(180deg, #ede4d6 0%, #e3e4d1 100%)
     }
 
     .tenuta {
-      background: linear-gradient(180deg, #e3e4d1 0%, #d5dac1 50%, #dfe1cb 100%)
+      background:
+        radial-gradient(ellipse 55% 18% at 90% 22%, rgba(156, 165, 134, .22), transparent 70%),
+        radial-gradient(ellipse 50% 16% at 8% 62%, rgba(176, 105, 74, .07), transparent 70%),
+        linear-gradient(180deg, #e3e4d1 0%, #d9ddc5 25%, #d2d8bd 52%, #d9ddc5 78%, #dfe1cb 100%)
     }
 
     /* il padding (non il margin) permette al fondo di continuare
@@ -224,30 +237,47 @@
     .night {
       margin: 0 !important;
       padding: 150px 0;
-      background: linear-gradient(180deg, #dfe1cb 0%, #e6e3d0 55%, #ede4d6 100%)
+      background: linear-gradient(180deg, #dfe1cb 0%, #e3e2cf 30%, #e8e3d1 62%, #ede4d6 100%)
     }
 
+    /* fascia oliva: ~330px di dissolvenza sopra e sotto, con una curva
+       lenta che parte da trasparente; dentro, il verde respira fra toni
+       piu' chiari (salvia) e piu' profondi */
     .olive-band {
       position: relative;
       z-index: 2;
-      padding: 150px 0;
+      padding: 330px 0;
       background:
-        radial-gradient(ellipse 60% 22% at 18% 30%, rgba(156, 165, 134, .20), transparent 70%),
-        radial-gradient(ellipse 55% 20% at 85% 72%, rgba(176, 105, 74, .10), transparent 70%),
-        linear-gradient(180deg, rgba(79, 83, 60, 0) 0, #565b42 170px, #4a4e38 50%, #565b42 calc(100% - 170px), rgba(79, 83, 60, 0) 100%)
+        radial-gradient(ellipse 60% 18% at 16% 28%, rgba(156, 165, 134, .22), transparent 70%),
+        radial-gradient(ellipse 55% 16% at 86% 58%, rgba(176, 105, 74, .10), transparent 70%),
+        radial-gradient(ellipse 60% 18% at 22% 80%, rgba(156, 165, 134, .16), transparent 70%),
+        linear-gradient(180deg,
+          rgba(86, 91, 66, 0) 0, rgba(86, 91, 66, .03) 34px, rgba(86, 91, 66, .12) 68px, rgba(86, 91, 66, .27) 102px,
+          rgba(86, 91, 66, .5) 136px, rgba(86, 91, 66, .73) 170px, rgba(86, 91, 66, .88) 204px,
+          rgba(86, 91, 66, .97) 238px, #565b42 330px,
+          #4d513a 50%,
+          #565b42 calc(100% - 330px), rgba(86, 91, 66, .97) calc(100% - 238px), rgba(86, 91, 66, .88) calc(100% - 204px),
+          rgba(86, 91, 66, .73) calc(100% - 170px), rgba(86, 91, 66, .5) calc(100% - 136px),
+          rgba(86, 91, 66, .27) calc(100% - 102px), rgba(86, 91, 66, .12) calc(100% - 68px),
+          rgba(86, 91, 66, .03) calc(100% - 34px), rgba(86, 91, 66, 0) 100%)
     }
 
     .amen {
-      background: linear-gradient(180deg, #ede4d6 0%, #dfe1cb 100%)
+      background:
+        radial-gradient(ellipse 55% 25% at 85% 30%, rgba(156, 165, 134, .18), transparent 70%),
+        linear-gradient(180deg, #ede4d6 0%, #e7e4d2 35%, #dfe1cb 100%)
     }
 
     .terra {
-      background: linear-gradient(180deg, #dfe1cb 0%, #d3d9be 55%, #ede4d6 100%)
+      background:
+        radial-gradient(ellipse 55% 20% at 10% 40%, rgba(156, 165, 134, .2), transparent 70%),
+        linear-gradient(180deg, #dfe1cb 0%, #d7dcc2 30%, #d3d9be 55%, #e1ded0 82%, #ede4d6 100%)
     }
 
+    /* nastro: oliva pieno, con un filo di luce al centro */
     .marq {
-      background: #4f533c !important;
-      border-color: rgba(214, 193, 166, .16) !important
+      background: linear-gradient(180deg, #4f533c 0%, #565b42 50%, #4f533c 100%) !important;
+      border-color: transparent !important
     }
 
     @media (max-width:820px) {
@@ -256,7 +286,19 @@
       }
 
       .olive-band {
-        padding: 90px 0
+        padding: 200px 0;
+        background:
+          radial-gradient(ellipse 60% 14% at 16% 28%, rgba(156, 165, 134, .22), transparent 70%),
+          radial-gradient(ellipse 55% 12% at 86% 60%, rgba(176, 105, 74, .10), transparent 70%),
+          linear-gradient(180deg,
+            rgba(86, 91, 66, 0) 0, rgba(86, 91, 66, .03) 20px, rgba(86, 91, 66, .12) 41px, rgba(86, 91, 66, .27) 62px,
+            rgba(86, 91, 66, .5) 82px, rgba(86, 91, 66, .73) 103px, rgba(86, 91, 66, .88) 123px,
+            rgba(86, 91, 66, .97) 144px, #565b42 200px,
+            #4d513a 50%,
+            #565b42 calc(100% - 200px), rgba(86, 91, 66, .97) calc(100% - 144px), rgba(86, 91, 66, .88) calc(100% - 123px),
+            rgba(86, 91, 66, .73) calc(100% - 103px), rgba(86, 91, 66, .5) calc(100% - 82px),
+            rgba(86, 91, 66, .27) calc(100% - 62px), rgba(86, 91, 66, .12) calc(100% - 41px),
+            rgba(86, 91, 66, .03) calc(100% - 20px), rgba(86, 91, 66, 0) 100%)
       }
     }
 
@@ -1233,7 +1275,7 @@
     /* ---------- manifesto ---------- */
   /* Sezione di benvenuto con testo di presentazione e statistiche */
     .mani {
-      padding: 150px 0 110px
+      padding: 250px 0 110px
     }
 
     .mani h2 {
@@ -1917,7 +1959,7 @@
     .cta .veil {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, var(--bg) 0%, rgba(40, 42, 30, .38) 30%, rgba(40, 42, 30, .58) 100%)
+      background: linear-gradient(180deg, var(--bg) 0%, rgba(40, 42, 30, .38) 30%, rgba(40, 42, 30, .5) 62%, rgba(79, 83, 60, .72) 85%, #4f533c 100%)
     }
 
     .cta .inner {
@@ -2312,7 +2354,7 @@
       }
 
       .mani {
-        padding: 90px 0 70px
+        padding: 150px 0 70px
       }
 
       .stats {
