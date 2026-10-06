@@ -184,8 +184,10 @@
        chiari, in avorio, e i dettagli usano una terracotta più luminosa
        per restare leggibili sul fondo scuro. */
     .hero,
-    .night,
+    .night-frame,
     .cta,
+    .marq,
+    .olive-band,
     footer,
     #lb {
       --ink: #f3ece1;
@@ -202,6 +204,60 @@
 
     ::selection {
       background: rgba(176, 105, 74, .25)
+    }
+
+    /* ---------- fondi: ritmo di avorio, salvia e oliva ----------
+       La pagina alterna toni chiari (avorio -> salvia pallida) a una
+       fascia oliva profonda (galleria + esterni); i passaggi sono sempre
+       sfumati, mai a taglio netto. Banda del nastro e piè di pagina
+       usano lo stesso oliva per chiudere il cerchio. */
+    .mani {
+      background: linear-gradient(180deg, #ede4d6 0%, #e3e4d1 100%)
+    }
+
+    .tenuta {
+      background: linear-gradient(180deg, #e3e4d1 0%, #d5dac1 50%, #dfe1cb 100%)
+    }
+
+    /* il padding (non il margin) permette al fondo di continuare
+       dietro la cornice, senza strisce di colore diverso */
+    .night {
+      margin: 0 !important;
+      padding: 150px 0;
+      background: linear-gradient(180deg, #dfe1cb 0%, #e6e3d0 55%, #ede4d6 100%)
+    }
+
+    .olive-band {
+      position: relative;
+      z-index: 2;
+      padding: 150px 0;
+      background:
+        radial-gradient(ellipse 60% 22% at 18% 30%, rgba(156, 165, 134, .20), transparent 70%),
+        radial-gradient(ellipse 55% 20% at 85% 72%, rgba(176, 105, 74, .10), transparent 70%),
+        linear-gradient(180deg, rgba(79, 83, 60, 0) 0, #565b42 170px, #4a4e38 50%, #565b42 calc(100% - 170px), rgba(79, 83, 60, 0) 100%)
+    }
+
+    .amen {
+      background: linear-gradient(180deg, #ede4d6 0%, #dfe1cb 100%)
+    }
+
+    .terra {
+      background: linear-gradient(180deg, #dfe1cb 0%, #d3d9be 55%, #ede4d6 100%)
+    }
+
+    .marq {
+      background: #4f533c !important;
+      border-color: rgba(214, 193, 166, .16) !important
+    }
+
+    @media (max-width:820px) {
+      .night {
+        padding: 90px 0
+      }
+
+      .olive-band {
+        padding: 90px 0
+      }
     }
 
     img {
@@ -2704,7 +2760,7 @@
       }
 
       .marq {
-        background: #e3d5c2
+        background: #4f533c
       }
     }
 
@@ -2982,6 +3038,10 @@
     </div>
   </section>
 
+  <!-- FASCIA OLIVA: galleria ed esterni su un fondo verde oliva profondo,
+       che sfuma morbido nell'avorio sopra e sotto -->
+  <div class="olive-band">
+
   <!-- GALLERIA: foto degli interni, scorre muovendo il mouse ai bordi -->
   <section class="gal" id="galleria">
     <div class="wrap head">
@@ -3083,6 +3143,8 @@
       </div>
     </div>
   </section>
+
+  </div><!-- /olive-band -->
 
   <!-- AMENITIES: elenco dei servizi offerti -->
   <section class="amen">
