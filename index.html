@@ -2832,6 +2832,167 @@
         transform: translate3d(-6vw, -8vh, 0)
       }
     }
+
+    /* ================================================================
+       FLUIDITA'
+       Principio: durante lo scroll il thread principale deve fare il
+       meno possibile. Tutto cio' che si muove gira sul "compositor"
+       (la scheda grafica), che lavora in parallelo e non si blocca.
+       ================================================================ */
+
+    /* Gli aloni sfocati di sfondo (3 cerchi fissi da 100px di
+       sfocatura, animati senza sosta) ora sono coperti dai fondi
+       colorati delle sezioni: invisibili ma ricalcolati a ogni frame. */
+    .aura {
+      display: none !important
+    }
+
+    /* Sfocature "vetro" tolte dove non si vedevano (sopra fondi gia'
+       uniformi) o dove costavano di piu' (sopra foto in movimento, da
+       risfocare a ogni frame). Compensate con fondi un po' piu' pieni.
+       Restano solo sulla barra di navigazione. */
+    .chip,
+    .hero-end .glass,
+    .marq,
+    .stat,
+    .am,
+    .imgbox .badge,
+    .bx .cap,
+    .btn,
+    footer {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important
+    }
+
+    @media (hover:hover) and (min-width:901px) {
+      .chip {
+        background: rgba(40, 42, 30, .34)
+      }
+
+      .hero-end .glass {
+        background: rgba(40, 42, 30, .74)
+      }
+
+      .imgbox .badge {
+        background: rgba(40, 42, 30, .72)
+      }
+
+      .bx .cap {
+        background: rgba(40, 42, 30, .76)
+      }
+
+      .btn {
+        background: rgba(40, 42, 30, .56)
+      }
+    }
+
+    /* Il nastro scorre solo quando e' sullo schermo, anche su computer */
+    .marq .row {
+      animation-play-state: paused
+    }
+
+    .marq.run .row {
+      animation-play-state: running
+    }
+
+    /* Cursore: si sposta con transform (nessun ricalcolo del layout);
+       l'ingrandimento al passaggio sta su un elemento interno, cosi' le
+       due trasformazioni non si ostacolano. */
+    #cur {
+      margin: -8.5px 0 0 -8.5px;
+      transform: translate3d(-100px, -100px, 0);
+      transition: none;
+      will-change: transform
+    }
+
+    #cur .cur-in {
+      display: block;
+      width: 100%;
+      height: 100%;
+      transition: transform .55s var(--ease)
+    }
+
+    #cur.hov .cur-in {
+      transform: scale(1.7) rotate(90deg)
+    }
+
+    /* Comparsa delle foto: stato iniziale (poi animato via Web Animations) */
+    .imgbox.clipwait {
+      clip-path: inset(12% 12% 12% 12% round 26px)
+    }
+
+    /* Parallasse con le scroll-driven animations native del browser:
+       la posizione delle foto e' calcolata dal compositor in base allo
+       scroll, senza JavaScript. Resta perfettamente agganciata allo
+       scorrimento anche se la pagina sta facendo altro. Dove il browser
+       non le supporta, lo script usa GSAP come prima. */
+    @supports (animation-timeline: view()) {
+      html.sda .imgbox {
+        view-timeline: --cdbox block
+      }
+
+      html.sda .imgbox .par {
+        animation: cdParA linear both;
+        animation-timeline: --cdbox;
+        animation-range: cover 0% cover 100%
+      }
+
+      html.sda .imgbox .par2 {
+        animation: cdParB linear both;
+        animation-timeline: --cdbox;
+        animation-range: cover 0% cover 100%
+      }
+
+      html.sda .night {
+        view-timeline: --cdnight block
+      }
+
+      html.sda #nightBg {
+        animation: cdParC linear both;
+        animation-timeline: --cdnight;
+        animation-range: cover 0% cover 100%
+      }
+
+      html.sda .cta {
+        view-timeline: --cdcta block
+      }
+
+      html.sda #ctaBg {
+        animation: cdParC linear both;
+        animation-timeline: --cdcta;
+        animation-range: cover 0% cover 100%
+      }
+    }
+
+    @keyframes cdParA {
+      from {
+        transform: translate3d(0, -8%, 0)
+      }
+
+      to {
+        transform: translate3d(0, 8%, 0)
+      }
+    }
+
+    @keyframes cdParB {
+      from {
+        transform: translate3d(0, 10%, 0)
+      }
+
+      to {
+        transform: translate3d(0, -10%, 0)
+      }
+    }
+
+    @keyframes cdParC {
+      from {
+        transform: translate3d(0, -10%, 0)
+      }
+
+      to {
+        transform: translate3d(0, 10%, 0)
+      }
+    }
   </style>
   <noscript>
     <style>
@@ -2864,9 +3025,9 @@
     </div>
   </div>
 
-  <div id="cur"><svg viewBox="0 0 24 24">
+  <div id="cur"><span class="cur-in"><svg viewBox="0 0 24 24">
       <path d="M12 0C13.1 7.6 16.4 10.9 24 12C16.4 13.1 13.1 16.4 12 24C10.9 16.4 7.6 13.1 0 12C7.6 10.9 10.9 7.6 12 0Z" />
-    </svg></div>
+    </svg></span></div>
   <div id="pbar"></div>
 
   <nav id="nav">
@@ -3422,8 +3583,11 @@
   /* Scorrimento fluido della pagina con la libreria Lenis (solo desktop, disattivato se l'utente preferisce meno animazioni) */
       var lenis = null;
       if (!reduced && !touch && typeof Lenis !== 'undefined') {
+        /* lerp piu' basso = scivolata piu' lunga e setosa: ogni scatto della
+           rotella si distribuisce su piu' fotogrammi, e cosi' anche la
+           discesa in piscina e le parallasse ricevono passi piu' piccoli */
         lenis = new Lenis({
-          lerp: 0.1,
+          lerp: 0.085,
           wheelMultiplier: 1.0,
           smoothWheel: true,
           syncTouch: false,
@@ -3453,9 +3617,26 @@
   /* Cursore personalizzato: la stellina segue il mouse e si ingrandisce sugli elementi interattivi */
       if (!touch) {
         var cur = document.getElementById('cur');
+        /* Il mouse puo' generare piu' eventi per fotogramma: si annota la
+           posizione e la si applica una sola volta, al fotogramma
+           successivo, con un transform (nessun ricalcolo del layout). */
+        var mx = -100,
+          my = -100,
+          curQueued = false;
+
+        function curApply() {
+          curQueued = false;
+          cur.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0)';
+        }
         addEventListener('mousemove', function(e) {
-          cur.style.left = e.clientX + 'px';
-          cur.style.top = e.clientY + 'px';
+          mx = e.clientX;
+          my = e.clientY;
+          if (!curQueued) {
+            curQueued = true;
+            requestAnimationFrame(curApply);
+          }
+        }, {
+          passive: true
         });
         document.querySelectorAll('a,button,.bx,.gcard,.stat,.am').forEach(function(el) {
           el.addEventListener('mouseenter', function() {
@@ -3488,13 +3669,26 @@
   /* Effetto "magnetico": pulsanti e pill si spostano leggermente verso il cursore */
       if (!touch && !reduced) {
         document.querySelectorAll('.mag').forEach(function(el) {
+          /* la posizione si misura all'ingresso del mouse, non a ogni
+             movimento: misurare dopo aver appena spostato l'elemento
+             costringeva il browser a ricalcolare il layout ogni volta */
+          var r = null;
+          el.addEventListener('mouseenter', function() {
+            el.style.transform = '';
+            r = el.getBoundingClientRect();
+          });
           el.addEventListener('mousemove', function(e) {
-            var r = el.getBoundingClientRect();
+            if (!r) r = el.getBoundingClientRect();
             var dx = (e.clientX - r.left - r.width / 2) / r.width,
               dy = (e.clientY - r.top - r.height / 2) / r.height;
-            el.style.transform = 'translate(' + (dx * 14) + 'px,' + (dy * 10) + 'px)';
+            /* limite di sicurezza: se la pagina scorre col mouse fermo
+               sopra il pulsante, la misura iniziale non vale piu' */
+            dx = Math.max(-.6, Math.min(.6, dx));
+            dy = Math.max(-.6, Math.min(.6, dy));
+            el.style.transform = 'translate3d(' + (dx * 14).toFixed(1) + 'px,' + (dy * 10).toFixed(1) + 'px,0)';
           });
           el.addEventListener('mouseleave', function() {
+            r = null;
             el.style.transform = '';
             el.style.transition = 'transform .5s cubic-bezier(.22,1,.36,1)';
             setTimeout(function() {
@@ -3764,9 +3958,12 @@
            Su uno schermo retina il canvas arrivava a 4096 px di larghezza
            e ad ogni movimento di scroll l'immagine da 1280 px veniva
            ingrandita 3,2 volte: era questo a far scattare la discesa.
-           Si disegna al massimo a 1440 px e l'ingrandimento fino allo
-           schermo lo fa la scheda grafica, che lo esegue gratuitamente. */
-        var MAXW = 1440;
+           Si disegna al massimo a 1280 px, la larghezza esatta dei
+           fotogrammi: il disegno resta quasi 1:1 (nessun ricampionamento
+           costoso, due volte per frame con la dissolvenza) e
+           l'ingrandimento fino allo schermo lo fa la scheda grafica,
+           che lo esegue gratuitamente. */
+        var MAXW = 1280;
         if (w > MAXW) {
           h = Math.round(h * MAXW / w);
           w = MAXW;
@@ -3965,6 +4162,11 @@
         revealed = true;
         document.documentElement.classList.remove('lding');
         loader.classList.add('off');
+        /* finita la dissolvenza il loader viene tolto del tutto: da
+           invisibile continuava ad animare l'alone pulsante */
+        setTimeout(function() {
+          loader.style.display = 'none';
+        }, 1300);
         dirty = true;
         if (lastDrawn >= 0 && heroFallback) heroFallback.style.display = 'none';
         if (vidMode && heroVid) startVideo();
@@ -4149,79 +4351,151 @@
          indietro e i testi (che partono invisibili) comparivano in
          ritardo o mai. Su mobile tutto e' visibile da subito; le
          animazioni restano su computer, dove lo scroll e' smorzato. */
+
+      /* COMPARSE (testi e foto) con Web Animations.
+         Prima le muoveva GSAP dal thread principale, fotogramma per
+         fotogramma. Ora vengono consegnate una volta sola al browser, che
+         le esegue sul compositor: restano fluide anche mentre la pagina
+         disegna la discesa o carica immagini. Il momento di partenza lo
+         decide un IntersectionObserver (asincrono, costo nullo durante lo
+         scroll). A fine animazione la classe viene tolta e l'elemento
+         torna "normale", quindi gli effetti al passaggio del mouse delle
+         schede funzionano di nuovo. */
+      var EASE_OUT = 'cubic-bezier(.215, .61, .355, 1)';
+      var canWA = !!Element.prototype.animate && 'IntersectionObserver' in window;
+      var sda = !!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()'));
+      /* il sottotitolo dell'hero ha la sua entrata dedicata (vedi reveal) */
+      document.querySelectorAll('.hero .rvfade').forEach(function(el) {
+        el.classList.remove('rvfade');
+      });
+      if (canWA && !reduced && !lowPower) {
+        try {
+          var rvIO = new IntersectionObserver(function(es) {
+            es.forEach(function(en) {
+              if (!en.isIntersecting) return;
+              var el = en.target;
+              rvIO.unobserve(el);
+              var a = el.animate([{
+                opacity: 0,
+                transform: 'translate3d(0,40px,0)'
+              }, {
+                opacity: 1,
+                transform: 'translate3d(0,0,0)'
+              }], {
+                duration: 1100,
+                easing: EASE_OUT,
+                fill: 'both'
+              });
+              a.onfinish = function() {
+                el.classList.remove('rvfade');
+                a.cancel();
+              };
+            });
+          }, {
+            rootMargin: '0px 0px -12% 0px'
+          });
+          document.querySelectorAll('.rvfade').forEach(function(el) {
+            rvIO.observe(el);
+          });
+
+          var clIO = new IntersectionObserver(function(es) {
+            es.forEach(function(en) {
+              if (!en.isIntersecting) return;
+              var el = en.target;
+              clIO.unobserve(el);
+              var a = el.animate([{
+                clipPath: 'inset(12% 12% 12% 12% round 26px)'
+              }, {
+                clipPath: 'inset(0% 0% 0% 0% round 14px)'
+              }], {
+                duration: 1300,
+                easing: EASE_OUT,
+                fill: 'both'
+              });
+              a.onfinish = function() {
+                el.classList.remove('clipwait');
+                a.cancel();
+              };
+            });
+          }, {
+            rootMargin: '0px 0px -15% 0px'
+          });
+          document.querySelectorAll('.imgbox').forEach(function(el) {
+            el.classList.add('clipwait');
+            clIO.observe(el);
+          });
+          animOK = true;
+        } catch (err) {
+          animOK = false;
+        }
+      }
+
+      /* PARALLASSE: se il browser supporta le scroll-driven animations
+         le gestisce il CSS (classe "sda", vedi blocco FLUIDITA'), sul
+         compositor. Altrimenti GSAP, come prima. */
+      if (sda && !reduced && !lowPower) document.documentElement.classList.add('sda');
+
       if (hasGsap && !reduced && !lowPower) {
         try {
-          /* reveal generico */
-          document.querySelectorAll('.rvfade').forEach(function(el) {
-            gsap.to(el, {
-              opacity: 1,
-              y: 0,
-              duration: 1.1,
-              ease: 'power3.out',
-              scrollTrigger: {
-                trigger: el,
-                start: 'top 88%',
-                once: true
-              }
+          if (!sda) {
+            /* parallax immagini split */
+            document.querySelectorAll('.par').forEach(function(el) {
+              gsap.fromTo(el, {
+                yPercent: -8
+              }, {
+                yPercent: 8,
+                ease: 'none',
+                scrollTrigger: {
+                  trigger: el.closest('.imgbox'),
+                  start: 'top bottom',
+                  end: 'bottom top',
+                  scrub: true
+                }
+              });
             });
-          });
-          /* parallax immagini split */
-          document.querySelectorAll('.par').forEach(function(el) {
-            gsap.fromTo(el, {
-              yPercent: -8
+            document.querySelectorAll('.par2').forEach(function(el) {
+              gsap.fromTo(el, {
+                yPercent: 10
+              }, {
+                yPercent: -10,
+                ease: 'none',
+                scrollTrigger: {
+                  trigger: el.closest('.imgbox'),
+                  start: 'top bottom',
+                  end: 'bottom top',
+                  scrub: true
+                }
+              });
+            });
+            /* night: parallax */
+            gsap.fromTo('#nightBg', {
+              yPercent: -10
             }, {
-              yPercent: 8,
+              yPercent: 10,
               ease: 'none',
               scrollTrigger: {
-                trigger: el.closest('.imgbox'),
+                trigger: '.night',
                 start: 'top bottom',
                 end: 'bottom top',
                 scrub: true
               }
             });
-          });
-          document.querySelectorAll('.par2').forEach(function(el) {
-            gsap.fromTo(el, {
-              yPercent: 10
+            /* cta parallax */
+            gsap.fromTo('#ctaBg', {
+              yPercent: -10
             }, {
-              yPercent: -10,
+              yPercent: 10,
               ease: 'none',
               scrollTrigger: {
-                trigger: el.closest('.imgbox'),
+                trigger: '.cta',
                 start: 'top bottom',
                 end: 'bottom top',
                 scrub: true
               }
             });
-          });
-          /* clip reveal immagini */
-          document.querySelectorAll('.imgbox').forEach(function(el) {
-            gsap.fromTo(el, {
-              clipPath: 'inset(12% 12% 12% 12% round 26px)'
-            }, {
-              clipPath: 'inset(0% 0% 0% 0% round 26px)',
-              duration: 1.3,
-              ease: 'power3.out',
-              scrollTrigger: {
-                trigger: el,
-                start: 'top 85%',
-                once: true
-              }
-            });
-          });
-          /* night: parallax + parole */
-          gsap.fromTo('#nightBg', {
-            yPercent: -10
-          }, {
-            yPercent: 10,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: '.night',
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: true
-            }
-          });
+          }
+          /* night: le parole si accendono una dopo l'altra (solo opacita',
+             poche lettere: costo trascurabile) */
           (function() {
             var q = document.getElementById('nightQuote');
             var out = '';
@@ -4241,38 +4515,25 @@
               duration: 0.6,
               ease: 'none',
               scrollTrigger: {
-                trigger: '.night',
+                trigger: '.night-frame',
                 start: 'top 55%',
                 end: 'center 40%',
                 scrub: true
               }
             });
           })();
-          /* cta parallax */
-          gsap.fromTo('#ctaBg', {
-            yPercent: -10
-          }, {
-            yPercent: 10,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: '.cta',
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: true
-            }
-          });
-          animOK = true;
         } catch (err) {
-          animOK = false;
+          document.querySelectorAll('#nightQuote .wd').forEach(function(el) {
+            el.style.opacity = 1;
+          });
         }
       }
       if (!animOK) {
         document.querySelectorAll('.rvfade').forEach(function(el) {
-          el.style.opacity = 1;
-          el.style.transform = 'none';
+          el.classList.remove('rvfade');
         });
-        document.querySelectorAll('#nightQuote .wd').forEach(function(el) {
-          el.style.opacity = 1;
+        document.querySelectorAll('.imgbox.clipwait').forEach(function(el) {
+          el.classList.remove('clipwait');
         });
       }
 
