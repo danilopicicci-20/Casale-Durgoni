@@ -9,6 +9,9 @@
        3. SCRIPT : logica interattiva (scroll fluido Lenis, discesa in
                     piscina legata allo scrolling, animazioni GSAP,
                     galleria, mappa vettoriale, lightbox)
+     HERO: di default ora e' "foto + luce" (tre foto della villa con zoom
+     lento e una luce che respira). E' comandato dalla classe "herophoto"
+     aggiunta nel primo script: togliendola torna la discesa in piscina.
      Nota: la discesa in piscina è una sequenza di 121 fotogrammi WebP
      nella cartella "frames" (frames/hi = computer, frames/lo = telefoni,
      frames/poster.jpg = immagine di riserva). La cartella deve essere
@@ -30,6 +33,11 @@
        prima si poteva scorrere "alla cieca" e, a caricamento finito, ci
        si ritrovava a meta' discesa senza fotogrammi pronti. */
     document.documentElement.classList.add('lding');
+    /* INTERRUTTORE DELL'HERO
+       "herophoto" = foto della villa con zoom lento + luce che respira.
+       Togliendo questa riga torna la discesa in piscina legata allo
+       scroll (il suo codice e' rimasto tutto al suo posto). */
+    document.documentElement.classList.add('herophoto');
     addEventListener('pageshow', function() {
       window.scrollTo(0, 0);
     });
@@ -104,9 +112,9 @@
   <meta name="twitter:image" content="og-image.jpg">
   <title>Casale Durgoni — Villa leopoldina con piscina privata · Laterina, Arezzo</title>
   <meta name="description" content="Autentica villa leopoldina ai piedi del borgo di Laterina, alle porte di Arezzo. Piscina privata ad uso esclusivo, parco ombreggiato e tre appartamenti indipendenti.">
-  <link rel="preload" as="image" href="frames/poster.jpg" fetchpriority="high">
-  <link rel="preload" as="image" href="frames/pc/001.webp" media="(min-width:1024px) and (hover:hover)">
-  <link rel="preload" as="video" href="vid/piscina.mp4" media="(max-width:1023px),(hover:none)">
+  <!-- prima foto dell'hero: scaricata subito, in parallelo a tutto il resto -->
+  <link rel="preload" as="image" href="img/est-1.jpg" fetchpriority="high" media="(min-width:821px)">
+  <link rel="preload" as="image" href="img/m/est-1.webp" fetchpriority="high" media="(max-width:820px)">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- I caratteri non bloccano piu' il primo disegno: si caricano in
@@ -2993,6 +3001,301 @@
         transform: translate3d(0, 10%, 0)
       }
     }
+
+    /* ================================================================
+       HERO "FOTO + LUCE" (attivo con la classe html.herophoto)
+       Tre foto della villa si alternano in dissolvenza con uno zoom
+       lentissimo (effetto "Ken Burns"); sopra, due aloni di luce calda
+       e salvia che respirano piano e una grana leggera da pellicola.
+       Tutto e' animato su transform/opacity: lavora solo la scheda
+       grafica, zero JavaScript durante l'animazione.
+       ================================================================ */
+    .hero-photos,
+    .hero-light {
+      display: none
+    }
+
+    /* l'hero diventa una normale sezione alta uno schermo */
+    html.herophoto .hero-wrap {
+      height: auto
+    }
+
+    html.herophoto .hero {
+      background: #2f3223
+    }
+
+    html.herophoto #heroCanvas,
+    html.herophoto #heroVid,
+    html.herophoto .hero-fallback,
+    html.herophoto .hero-end {
+      display: none !important
+    }
+
+    html.herophoto .hero-photos {
+      display: block;
+      position: absolute;
+      inset: 0;
+      overflow: hidden
+    }
+
+    html.herophoto .hp {
+      position: absolute;
+      inset: 0;
+      background: center / cover no-repeat;
+      opacity: 0;
+      will-change: transform, opacity;
+      backface-visibility: hidden
+    }
+
+    html.herophoto .hp1 {
+      background-image: url('img/est-1.jpg');
+      --x0: 0;
+      --y0: 0;
+      --x1: -1.5%;
+      --y1: -1%
+    }
+
+    html.herophoto .hp2 {
+      background-image: url('img/est-3.jpg');
+      --x0: 1%;
+      --y0: 0;
+      --x1: -1%;
+      --y1: 1.2%
+    }
+
+    html.herophoto .hp3 {
+      background-image: url('img/est-2.jpg');
+      --x0: -1%;
+      --y0: 1%;
+      --x1: 1.2%;
+      --y1: -.8%
+    }
+
+    @media (max-width:820px) {
+      html.herophoto .hp1 {
+        background-image: url('img/m/est-1.webp')
+      }
+
+      html.herophoto .hp2 {
+        background-image: url('img/m/est-3.webp')
+      }
+
+      html.herophoto .hp3 {
+        background-image: url('img/m/est-2.webp')
+      }
+    }
+
+    /* Ciclo di 24 s, 8 s per foto. Ogni foto entra SOPRA la precedente,
+       che resta piena finche' la nuova non e' del tutto visibile: niente
+       "buco" scuro durante il cambio. */
+    html.herophoto.hin .hp {
+      animation: hpCycle 24s ease-in-out infinite both
+    }
+
+    html.herophoto.hin .hp2 {
+      animation-delay: 8s
+    }
+
+    html.herophoto.hin .hp3 {
+      animation-delay: 16s
+    }
+
+    @keyframes hpCycle {
+      0% {
+        opacity: 0;
+        transform: translate3d(var(--x0), var(--y0), 0) scale(1.03)
+      }
+
+      7% {
+        opacity: 1
+      }
+
+      40% {
+        opacity: 1;
+        transform: translate3d(var(--x1), var(--y1), 0) scale(1.13)
+      }
+
+      45%,
+      100% {
+        opacity: 0;
+        transform: translate3d(var(--x1), var(--y1), 0) scale(1.13)
+      }
+    }
+
+    /* luce che respira */
+    html.herophoto .hero-light {
+      display: block;
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none
+    }
+
+    html.herophoto .hero-light i {
+      position: absolute;
+      border-radius: 50%;
+      will-change: transform, opacity
+    }
+
+    html.herophoto .hero-light i:nth-child(1) {
+      width: 85vmax;
+      height: 85vmax;
+      right: -30vmax;
+      top: -40vmax;
+      background: radial-gradient(circle, rgba(255, 228, 186, .46) 0%, rgba(255, 228, 186, .14) 38%, rgba(255, 228, 186, 0) 66%);
+      animation: lightA 14s ease-in-out infinite alternate
+    }
+
+    html.herophoto .hero-light i:nth-child(2) {
+      width: 75vmax;
+      height: 75vmax;
+      left: -30vmax;
+      bottom: -40vmax;
+      background: radial-gradient(circle, rgba(156, 165, 134, .38) 0%, rgba(156, 165, 134, 0) 65%);
+      animation: lightB 19s ease-in-out infinite alternate
+    }
+
+    /* grana da pellicola: disegnata una volta, ferma (costo nullo) */
+    html.herophoto .hero-light::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: .07;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E")
+    }
+
+    @keyframes lightA {
+      from {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: .7
+      }
+
+      to {
+        transform: translate3d(-7vmax, 6vmax, 0) scale(1.12);
+        opacity: 1
+      }
+    }
+
+    @keyframes lightB {
+      from {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: .55
+      }
+
+      to {
+        transform: translate3d(6vmax, -5vmax, 0) scale(1.1);
+        opacity: .95
+      }
+    }
+
+    /* velo: piu' scuro in alto (barra di navigazione) e in basso, dove
+       sfuma nell'oliva del nastro che segue: nessuno stacco */
+    html.herophoto .hero-veil {
+      background: linear-gradient(180deg, rgba(40, 42, 30, .5) 0%, rgba(40, 42, 30, .12) 26%, rgba(40, 42, 30, .1) 60%, rgba(64, 68, 48, .55) 86%, #4f533c 100%)
+    }
+
+    html.herophoto .hero .sub {
+      text-shadow: 0 1px 16px rgba(40, 42, 30, .6)
+    }
+
+    /* l'alone chiaro dietro la scritta respira insieme alla luce */
+    html.herophoto.hin .hb-halo {
+      animation: haloBreath 9s ease-in-out infinite alternate
+    }
+
+    @keyframes haloBreath {
+      from {
+        opacity: .82;
+        transform: translate(-50%, -52%) scale(.96)
+      }
+
+      to {
+        opacity: 1;
+        transform: translate(-50%, -52%) scale(1.04)
+      }
+    }
+
+    /* ---- entrata della scritta (sostituisce quella fatta con GSAP) ----
+       Finche' il loader e' davanti i contenuti restano nascosti; quando
+       la pagina e' pronta (classe "hin") entrano in sequenza. */
+    html.herophoto:not(.hin) .hero-content>*,
+    html.herophoto:not(.hin) #heroTitle .lt {
+      opacity: 0
+    }
+
+    html.herophoto.hin #heroTitle .lt {
+      animation: ltIn 1.25s cubic-bezier(.16, 1, .3, 1) both;
+      animation-delay: calc(.35s + var(--i, 0) * 60ms)
+    }
+
+    html.herophoto.hin .hero .chip {
+      animation: hUp 1s cubic-bezier(.215, .61, .355, 1) .2s both
+    }
+
+    html.herophoto.hin .hb-top {
+      animation: hUp 1.1s cubic-bezier(.215, .61, .355, 1) .3s both
+    }
+
+    html.herophoto.hin .hb-mono {
+      animation: hUp 1.1s cubic-bezier(.215, .61, .355, 1) .95s both
+    }
+
+    html.herophoto.hin .hero .sub {
+      animation: hUp 1.1s cubic-bezier(.215, .61, .355, 1) 1.15s both
+    }
+
+    html.herophoto.hin .hero .cue {
+      animation: hFade 1.2s ease 1.7s both
+    }
+
+    @keyframes ltIn {
+      from {
+        opacity: 0;
+        transform: translate3d(0, 60%, 0);
+        filter: blur(6px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+        filter: blur(0)
+      }
+    }
+
+    @keyframes hUp {
+      from {
+        opacity: 0;
+        transform: translate3d(0, 18px, 0)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes hFade {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+
+      html.herophoto .hp,
+      html.herophoto .hero-light i,
+      html.herophoto .hb-halo {
+        animation: none !important
+      }
+
+      html.herophoto .hp1 {
+        opacity: 1
+      }
+    }
   </style>
   <noscript>
     <style>
@@ -3052,11 +3355,19 @@
   <div class="hero-wrap" id="top">
     <header class="hero">
       <div class="hero-fallback"></div>
+      <!-- NUOVO HERO: tre foto della villa che si alternano in dissolvenza
+           con uno zoom lentissimo, sotto una luce calda che "respira" -->
+      <div class="hero-photos" aria-hidden="true">
+        <div class="hp hp1"></div>
+        <div class="hp hp2"></div>
+        <div class="hp hp3"></div>
+      </div>
+      <div class="hero-light" aria-hidden="true"><i></i><i></i></div>
       <!-- Sui telefoni la discesa e' un video: la decodifica la fa il chip
            video, quindi resta fluida qualunque cosa faccia lo scroll. Su
            computer resta il canvas legato al movimento del dito/rotella. -->
       <video id="heroVid" playsinline muted autoplay preload="none"
-             poster="frames/poster.jpg" disablepictureinpicture
+             disablepictureinpicture
              disableremoteplayback aria-hidden="true"></video>
       <canvas id="heroCanvas"></canvas>
       <div class="hero-veil"></div>
@@ -3559,6 +3870,8 @@
       addEventListener('error', function(ev) {
         var l = document.getElementById('loader');
         if (l) l.classList.add('off');
+        document.documentElement.classList.remove('lding');
+        document.documentElement.classList.add('hin');
         try {
           var lg = document.querySelector('.legal span:last-child');
           if (lg && ev && ev.message) lg.textContent = 'v5 · errore: ' + String(ev.message).slice(0, 90);
@@ -3741,7 +4054,10 @@
          parte. Era il ridisegno del canvas ad ogni movimento di scroll a
          non poter reggere: durante lo scorrimento per inerzia iOS
          rallenta il JavaScript per dare priorita' allo scorrimento. */
-      var vidMode = lowPower;
+      /* Nuovo hero con foto (vedi interruttore "herophoto" in cima):
+         niente fotogrammi, niente video, niente canvas. */
+      var HERO_PHOTO = document.documentElement.classList.contains('herophoto');
+      var vidMode = lowPower && !HERO_PHOTO;
       var heroVid = document.getElementById('heroVid');
       if (vidMode) document.documentElement.classList.add('vidmode');
 
@@ -3831,7 +4147,7 @@
       }
 
       function pump() {
-        if (vidMode) return;
+        if (vidMode || HERO_PHOTO) return;
         while (inFlight < MAXP && queue.length) {
           load(takeNext());
         }
@@ -4055,7 +4371,7 @@
 
         /* la posizione di scroll comanda direttamente il fotogramma
            (solo su computer: su telefono c'e' il video) */
-        if (!vidMode) {
+        if (!vidMode && !HERO_PHOTO) {
           var target = prog * (N_MF - 1);
           wantIdx = Math.round(target);
           if (head < 0 || !revealed) head = target;
@@ -4071,7 +4387,19 @@
         /* Su computer titolo e targa seguono la corsa dello scroll.
            Su telefono l'hero e' alto uno schermo e scorre via da solo:
            la targa finale la comanda il video, non lo scroll. */
-        if (revealed && !vidMode) {
+        /* Hero con foto (solo computer): mentre l'hero esce dallo schermo
+           la scritta resta un po' indietro e svanisce, in parallasse. */
+        if (revealed && HERO_PHOTO) {
+          if (!lowPower) {
+            var tp = Math.min(1, y / (innerHeight * 0.65));
+            if (Math.abs(tp - lastFadeT) > 0.004) {
+              lastFadeT = tp;
+              heroContent.style.opacity = String(1 - tp);
+              heroContent.style.transform = 'translate3d(0,' + (tp * 110).toFixed(1) + 'px,0)';
+              heroContent.style.pointerEvents = tp >= 1 ? 'none' : '';
+            }
+          }
+        } else if (revealed && !vidMode) {
           var t = Math.min(1, prog / 0.36);
           if (Math.abs(t - lastFadeT) > 0.004) {
             lastFadeT = t;
@@ -4170,6 +4498,11 @@
         dirty = true;
         if (lastDrawn >= 0 && heroFallback) heroFallback.style.display = 'none';
         if (vidMode && heroVid) startVideo();
+        /* hero con foto: l'entrata e' tutta in CSS, su ogni dispositivo */
+        if (HERO_PHOTO) {
+          document.documentElement.classList.add('hin');
+          return;
+        }
         if (hasGsap && !reduced && !lowPower) {
           var lts = document.querySelectorAll('#heroTitle .lt');
           gsap.fromTo(lts, {
@@ -4227,15 +4560,18 @@
       /* split hero title in lettere */
       (function() {
         var h = document.getElementById('heroTitle');
-        var out = '';
+        var out = '',
+          k = 0;
+        /* --i = posizione della lettera, usata dal CSS per farle entrare
+           una dopo l'altra */
         h.childNodes.forEach(function(n) {
           if (n.nodeType === 3) {
             n.textContent.split('').forEach(function(c) {
-              out += c === ' ' ? ' ' : '<span class="lt">' + c + '</span>';
+              out += c === ' ' ? ' ' : '<span class="lt" style="--i:' + (k++) + '">' + c + '</span>';
             });
           } else if (n.nodeType === 1) {
             n.textContent.split('').forEach(function(c) {
-              out += c === ' ' ? ' ' : '<span class="lt lte">' + c + '</span>';
+              out += c === ' ' ? ' ' : '<span class="lt lte" style="--i:' + (k++) + '">' + c + '</span>';
             });
           }
         });
@@ -4268,6 +4604,9 @@
       }
 
       if (vidMode && heroVid) {
+        /* il poster si imposta qui (e non nell'HTML) cosi' con l'hero a
+           foto non viene scaricato inutilmente */
+        heroVid.poster = 'frames/poster.jpg';
         heroVid.preload = 'auto';
         heroVid.src = 'vid/piscina.mp4';
         heroVid.load();
@@ -4325,7 +4664,38 @@
         setTimeout(open, 1800);
       }
 
+      /* Hero con foto: il loader aspetta solo la prima foto (gia' in
+         scaricamento grazie al preload in testa alla pagina). L'anello
+         avanza dolcemente finche' arriva, poi si chiude e si apre. */
+      var heroImgReady = false,
+        ldStart = performance.now();
+      if (HERO_PHOTO) {
+        var hpImg = new Image();
+        hpImg.decoding = 'async';
+        hpImg.onload = function() {
+          var ok = function() {
+            heroImgReady = true;
+          };
+          if (hpImg.decode) hpImg.decode().then(ok, ok);
+          else ok();
+        };
+        hpImg.onerror = function() {
+          heroImgReady = true;
+        };
+        hpImg.src = matchMedia('(max-width:820px)').matches ? 'img/m/est-1.webp' : 'img/est-1.jpg';
+      }
+
       var ldTimer = setInterval(function() {
+        if (HERO_PHOTO) {
+          var pp = heroImgReady ? 1 : Math.min(.9, (performance.now() - ldStart) / 1400);
+          if (ldRing) ldRing.style.strokeDashoffset = (LD_C * (1 - pp)).toFixed(1);
+          /* un istante col cerchio chiuso, poi si apre */
+          if (heroImgReady && performance.now() - ldStart > 700) {
+            clearInterval(ldTimer);
+            setTimeout(reveal, 350);
+          }
+          return;
+        }
         if (vidMode) {
           if (ldRing) ldRing.style.strokeDashoffset = '0';
           return;
