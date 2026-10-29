@@ -113,8 +113,7 @@
   <title>Casale Durgoni — Villa leopoldina con piscina privata · Laterina, Arezzo</title>
   <meta name="description" content="Autentica villa leopoldina ai piedi del borgo di Laterina, alle porte di Arezzo. Piscina privata ad uso esclusivo, parco ombreggiato e tre appartamenti indipendenti.">
   <!-- prima foto dell'hero: scaricata subito, in parallelo a tutto il resto -->
-  <link rel="preload" as="image" href="img/est-1.jpg" fetchpriority="high" media="(min-width:821px)">
-  <link rel="preload" as="image" href="img/m/est-1.webp" fetchpriority="high" media="(max-width:820px)">
+  <link rel="preload" as="image" href="img/hero/hero-1.jpg" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- I caratteri non bloccano piu' il primo disegno: si caricano in
@@ -3038,85 +3037,95 @@
       overflow: hidden
     }
 
+    /* NITIDEZZA: ogni foto e' un livello un po' piu' grande dello
+       schermo (107%) e lo zoom lavora solo RIDUCENDO (da 95,5% a 100%).
+       Il browser disegna il livello una volta alla sua dimensione piena e
+       la scheda grafica poi lo rimpicciolisce soltanto: l'immagine non
+       viene mai ingrandita dopo il disegno, quindi resta nitida per tutta
+       l'animazione (prima veniva ingrandita fino al 112% e si ammorbidiva). */
     html.herophoto .hp {
       position: absolute;
-      inset: 0;
+      inset: -3.5%;
       background: center / cover no-repeat;
       opacity: 0;
       will-change: transform, opacity;
       backface-visibility: hidden
     }
 
+    /* Foto originali in img/hero/. La prima e' gia' in caricamento dal
+       preload in testa; le altre partono solo a pagina aperta (classe
+       "hin"), cosi' non rallentano la comparsa del sito. */
     html.herophoto .hp1 {
-      background-image: url('img/est-1.jpg');
+      background-image: url('img/hero/hero-1.jpg');
       --x0: 0;
       --y0: 0;
-      --x1: -1.5%;
-      --y1: -1%
+      --x1: -1%;
+      --y1: -.6%
     }
 
+    html.herophoto.hin .hp2 {
+      background-image: url('img/hero/hero-2.jpg')
+    }
+
+    html.herophoto.hin .hp3 {
+      background-image: url('img/hero/hero-3.jpg')
+    }
+
+    html.herophoto.hin .hp4 {
+      background-image: url('img/hero/hero-4.webp')
+    }
+
+    html.herophoto.hin .hp5 {
+      background-image: url('img/hero/hero-5.webp')
+    }
+
+    html.herophoto.hin .hp6 {
+      background-image: url('img/hero/hero-6.webp')
+    }
+
+    /* direzioni del lento movimento, diverse per ogni foto */
     html.herophoto .hp2 {
-      background-image: url('img/est-3.jpg');
-      --x0: 1%;
+      --x0: .6%;
       --y0: 0;
-      --x1: -1%;
-      --y1: 1.2%
+      --x1: -.8%;
+      --y1: .6%
     }
 
     html.herophoto .hp3 {
-      background-image: url('img/est-2.jpg');
-      --x0: -1%;
-      --y0: 1%;
-      --x1: 1.2%;
-      --y1: -.8%
+      --x0: -.6%;
+      --y0: .4%;
+      --x1: .9%;
+      --y1: -.5%
     }
 
-    /* la villa e la tenuta dall'alto */
     html.herophoto .hp4 {
-      background-image: url('img/est-4.jpg');
       --x0: 0;
-      --y0: -1%;
-      --x1: 1%;
-      --y1: 1%
+      --y0: -.5%;
+      --x1: .8%;
+      --y1: .7%
     }
 
-    /* la piscina di notte, col borgo illuminato */
     html.herophoto .hp5 {
-      background-image: url('img/est-5.jpg');
-      --x0: -1%;
+      --x0: -.5%;
       --y0: 0;
-      --x1: 1%;
-      --y1: -1%
+      --x1: .9%;
+      --y1: -.7%
     }
 
-    @media (max-width:820px) {
-      html.herophoto .hp4 {
-        background-image: url('img/m/est-4.webp')
-      }
-
-      html.herophoto .hp5 {
-        background-image: url('img/m/est-5.webp')
-      }
-      html.herophoto .hp1 {
-        background-image: url('img/m/est-1.webp')
-      }
-
-      html.herophoto .hp2 {
-        background-image: url('img/m/est-3.webp')
-      }
-
-      html.herophoto .hp3 {
-        background-image: url('img/m/est-2.webp')
-      }
+    html.herophoto .hp6 {
+      --x0: .5%;
+      --y0: .5%;
+      --x1: -.9%;
+      --y1: -.4%
     }
 
-    /* Ciclo di 30 s, 6 s per foto (5 foto). Ogni foto entra SOPRA la
+    /* Ciclo di 36 s, 6 s per foto (6 foto). Ogni foto entra SOPRA la
        precedente, che resta piena finche' la nuova non e' del tutto
        visibile: niente "buco" scuro durante il cambio.
-       Per cambiare il ritmo: durata = 5 x secondi per foto, e i ritardi
-       di hp2..hp5 = 1, 2, 3, 4 x secondi per foto. */
+       Per cambiare il ritmo: durata = 6 x secondi per foto, e i ritardi
+       di hp2..hp6 = 1, 2, 3, 4, 5 x secondi per foto. */
     html.herophoto.hin .hp {
-      animation: hpCycle 30s ease-in-out infinite both
+      animation: hpCycle 36s ease-in-out infinite both
     }
 
     html.herophoto.hin .hp2 {
@@ -3135,30 +3144,33 @@
       animation-delay: 24s
     }
 
-    /* 0-5%: entrata (1,5 s) · fino al 26%: piena, con lo zoom lento ·
-       26-30%: uscita, quando la foto successiva e' gia' tutta visibile */
+    html.herophoto.hin .hp6 {
+      animation-delay: 30s
+    }
+
+    /* 0-4%: entrata (1,5 s) · fino al 21,5%: piena, con lo zoom lento ·
+       21,5-25%: uscita, quando la foto successiva e' gia' tutta visibile */
     @keyframes hpCycle {
       0% {
         opacity: 0;
-        transform: translate3d(var(--x0), var(--y0), 0) scale(1.03)
+        transform: translate3d(var(--x0), var(--y0), 0) scale(.955)
       }
 
-      5% {
+      4.2% {
         opacity: 1
       }
 
-      26% {
+      21.5% {
         opacity: 1;
-        transform: translate3d(var(--x1), var(--y1), 0) scale(1.12)
+        transform: translate3d(var(--x1), var(--y1), 0) scale(1)
       }
 
-      30%,
+      25%,
       100% {
         opacity: 0;
-        transform: translate3d(var(--x1), var(--y1), 0) scale(1.13)
+        transform: translate3d(var(--x1), var(--y1), 0) scale(1)
       }
     }
-
     /* luce che respira */
     html.herophoto .hero-light {
       display: block;
@@ -3197,7 +3209,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      opacity: .07;
+      opacity: .04;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E")
     }
 
@@ -3400,6 +3412,7 @@
         <div class="hp hp3"></div>
         <div class="hp hp4"></div>
         <div class="hp hp5"></div>
+        <div class="hp hp6"></div>
       </div>
       <div class="hero-light" aria-hidden="true"><i></i><i></i></div>
       <!-- Sui telefoni la discesa e' un video: la decodifica la fa il chip
@@ -4721,7 +4734,7 @@
         hpImg.onerror = function() {
           heroImgReady = true;
         };
-        hpImg.src = matchMedia('(max-width:820px)').matches ? 'img/m/est-1.webp' : 'img/est-1.jpg';
+        hpImg.src = 'img/hero/hero-1.jpg';
       }
 
       var ldTimer = setInterval(function() {
