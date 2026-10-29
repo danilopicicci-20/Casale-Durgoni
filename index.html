@@ -113,7 +113,7 @@
   <title>Casale Durgoni — Villa leopoldina con piscina privata · Laterina, Arezzo</title>
   <meta name="description" content="Autentica villa leopoldina ai piedi del borgo di Laterina, alle porte di Arezzo. Piscina privata ad uso esclusivo, parco ombreggiato e tre appartamenti indipendenti.">
   <!-- prima foto dell'hero: scaricata subito, in parallelo a tutto il resto -->
-  <link rel="preload" as="image" href="img/hero/hero-1.jpg" fetchpriority="high">
+  <link rel="preload" as="image" href="img/hero/hero-5.webp" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- I caratteri non bloccano piu' il primo disegno: si caricano in
@@ -3054,78 +3054,46 @@
 
     /* Foto originali in img/hero/. La prima e' gia' in caricamento dal
        preload in testa; le altre partono solo a pagina aperta (classe
-       "hin"), cosi' non rallentano la comparsa del sito. */
+       "hin"), cosi' non rallentano la comparsa del sito.
+       Sequenza: tenuta dall'alto -> piscina di notte -> piscina coi cipressi */
     html.herophoto .hp1 {
-      background-image: url('img/hero/hero-1.jpg');
-      --x0: 0;
-      --y0: 0;
-      --x1: -1%;
-      --y1: -.6%
-    }
-
-    html.herophoto.hin .hp2 {
-      background-image: url('img/hero/hero-2.jpg')
-    }
-
-    html.herophoto.hin .hp3 {
-      background-image: url('img/hero/hero-3.jpg')
-    }
-
-    html.herophoto.hin .hp4 {
-      background-image: url('img/hero/hero-4.webp')
-    }
-
-    html.herophoto.hin .hp5 {
-      background-image: url('img/hero/hero-5.webp')
-    }
-
-    html.herophoto.hin .hp6 {
-      background-image: url('img/hero/hero-6.webp')
-    }
-
-    /* direzioni del lento movimento, diverse per ogni foto */
-    html.herophoto .hp2 {
-      --x0: .6%;
-      --y0: 0;
-      --x1: -.8%;
-      --y1: .6%
-    }
-
-    html.herophoto .hp3 {
-      --x0: -.6%;
-      --y0: .4%;
-      --x1: .9%;
-      --y1: -.5%
-    }
-
-    html.herophoto .hp4 {
-      --x0: 0;
-      --y0: -.5%;
-      --x1: .8%;
-      --y1: .7%
-    }
-
-    html.herophoto .hp5 {
-      --x0: -.5%;
-      --y0: 0;
-      --x1: .9%;
-      --y1: -.7%
-    }
-
-    html.herophoto .hp6 {
+      background-image: url('img/hero/hero-5.webp');
       --x0: .5%;
       --y0: .5%;
       --x1: -.9%;
       --y1: -.4%
     }
 
-    /* Ciclo di 36 s, 6 s per foto (6 foto). Ogni foto entra SOPRA la
+    html.herophoto.hin .hp2 {
+      background-image: url('img/hero/hero-4.webp')
+    }
+
+    html.herophoto.hin .hp3 {
+      background-image: url('img/hero/hero-6.webp')
+    }
+
+    /* direzioni del lento movimento, diverse per ogni foto */
+    html.herophoto .hp2 {
+      --x0: -.5%;
+      --y0: 0;
+      --x1: .9%;
+      --y1: -.7%
+    }
+
+    html.herophoto .hp3 {
+      --x0: .6%;
+      --y0: 0;
+      --x1: -.8%;
+      --y1: .6%
+    }
+
+    /* Ciclo di 18 s, 6 s per foto (3 foto). Ogni foto entra SOPRA la
        precedente, che resta piena finche' la nuova non e' del tutto
        visibile: niente "buco" scuro durante il cambio.
-       Per cambiare il ritmo: durata = 6 x secondi per foto, e i ritardi
-       di hp2..hp6 = 1, 2, 3, 4, 5 x secondi per foto. */
+       Per cambiare il ritmo: durata = 3 x secondi per foto, e i ritardi
+       di hp2, hp3 = 1, 2 x secondi per foto. */
     html.herophoto.hin .hp {
-      animation: hpCycle 36s ease-in-out infinite both
+      animation: hpCycle 18s ease-in-out infinite both
     }
 
     html.herophoto.hin .hp2 {
@@ -3136,36 +3104,24 @@
       animation-delay: 12s
     }
 
-    html.herophoto.hin .hp4 {
-      animation-delay: 18s
-    }
-
-    html.herophoto.hin .hp5 {
-      animation-delay: 24s
-    }
-
-    html.herophoto.hin .hp6 {
-      animation-delay: 30s
-    }
-
-    /* 0-4%: entrata (1,5 s) · fino al 21,5%: piena, con lo zoom lento ·
-       21,5-25%: uscita, quando la foto successiva e' gia' tutta visibile */
+    /* 0-8,4%: entrata (1,5 s) · fino al 42,5%: piena, con lo zoom lento ·
+       42,5-48%: uscita, quando la foto successiva e' gia' tutta visibile */
     @keyframes hpCycle {
       0% {
         opacity: 0;
         transform: translate3d(var(--x0), var(--y0), 0) scale(.955)
       }
 
-      4.2% {
+      8.4% {
         opacity: 1
       }
 
-      21.5% {
+      42.5% {
         opacity: 1;
         transform: translate3d(var(--x1), var(--y1), 0) scale(1)
       }
 
-      25%,
+      48%,
       100% {
         opacity: 0;
         transform: translate3d(var(--x1), var(--y1), 0) scale(1)
@@ -3410,9 +3366,6 @@
         <div class="hp hp1"></div>
         <div class="hp hp2"></div>
         <div class="hp hp3"></div>
-        <div class="hp hp4"></div>
-        <div class="hp hp5"></div>
-        <div class="hp hp6"></div>
       </div>
       <div class="hero-light" aria-hidden="true"><i></i><i></i></div>
       <!-- Sui telefoni la discesa e' un video: la decodifica la fa il chip
@@ -4734,7 +4687,7 @@
         hpImg.onerror = function() {
           heroImgReady = true;
         };
-        hpImg.src = 'img/hero/hero-1.jpg';
+        hpImg.src = 'img/hero/hero-5.webp';
       }
 
       var ldTimer = setInterval(function() {
