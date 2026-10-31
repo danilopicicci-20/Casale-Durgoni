@@ -3323,8 +3323,10 @@
       transform: scale(1.04)
     }
 
-    html.nightvideo .night .veil {
-      background: linear-gradient(180deg, rgba(40, 42, 30, .46) 0%, rgba(40, 42, 30, .40) 50%, rgba(40, 42, 30, .54) 100%)
+    /* Solo il video: niente frase e niente velo scuro */
+    html.nightvideo .night .veil,
+    html.nightvideo .night .quote {
+      display: none
     }
 
     #nightVid {
