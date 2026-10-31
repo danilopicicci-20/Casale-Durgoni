@@ -5370,9 +5370,23 @@
     (function() {
       var v = document.getElementById('nightVid');
       if (!v || !document.documentElement.classList.contains('nightvideo')) return;
-      var phone = matchMedia('(max-width: 767px) and (orientation: portrait)').matches;
+      var phone = matchMedia('(max-width: 767px) and (orientation: portrait)');
+      var file = function() {
+        return phone.matches ? 'video/villa-m.mp4' : 'video/villa-pc.mp4';
+      };
       var loaded = false;
       v.muted = true;
+      /* Telefono ruotato: si passa alla versione adatta dallo stesso punto */
+      if (phone.addEventListener) phone.addEventListener('change', function() {
+        if (!loaded) return;
+        var t = v.currentTime, playing = !v.paused;
+        v.src = file();
+        v.currentTime = t;
+        if (playing) {
+          var p = v.play();
+          if (p) p.catch(function() {});
+        }
+      });
       v.addEventListener('timeupdate', function() {
         if (!v.duration) return;
         var left = v.duration - v.currentTime;
@@ -5382,7 +5396,7 @@
         if (entries[0].isIntersecting) {
           if (!loaded) {
             loaded = true;
-            v.src = phone ? 'video/villa-m.mp4' : 'video/villa-pc.mp4';
+            v.src = file();
           }
           var p = v.play();
           if (p) p.catch(function() {});
