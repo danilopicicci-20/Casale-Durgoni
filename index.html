@@ -3323,6 +3323,31 @@
       transform: scale(1.04)
     }
 
+    /* Titolo sopra il riquadro, nello stesso stile delle altre sezioni */
+    .night {
+      flex-direction: column;
+      padding-top: 70px
+    }
+
+    .night-head {
+      width: min(1240px, 92vw);
+      margin-bottom: 56px
+    }
+
+    .night-head .big {
+      margin-bottom: 0
+    }
+
+    @media (max-width: 820px) {
+      .night {
+        padding-top: 40px
+      }
+
+      .night-head {
+        margin-bottom: 36px
+      }
+    }
+
     /* Solo il video: niente frase e niente velo scuro */
     html.nightvideo .night .veil,
     html.nightvideo .night .quote {
@@ -3598,6 +3623,10 @@
 
   <!-- NIGHT: frase evocativa sulla foto della piscina di notte, in cornice stile tenuta -->
   <section class="night">
+    <div class="night-head">
+      <div class="eyebrow rvfade" data-en="Overview">Panoramica</div>
+      <h2 class="big rvfade" data-en="More than a villa, a place to live &lt;em&gt;together&lt;/em&gt;.">Più di una villa, un luogo da vivere <em>insieme</em>.</h2>
+    </div>
     <div class="night-frame rvfade">
       <div class="zoomer">
         <div class="bg" id="nightBg">
