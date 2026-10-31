@@ -38,6 +38,16 @@
        Togliendo questa riga torna la discesa in piscina legata allo
        scroll (il suo codice e' rimasto tutto al suo posto). */
     document.documentElement.classList.add('herophoto');
+    /* INTERRUTTORE DEL RIQUADRO DELLA FRASE
+       "nightvideo" = ripresa col drone in loop al posto della foto di notte.
+       Togliendo questo blocco torna la foto. Con risparmio dati, rete 2G o
+       animazioni ridotte resta comunque la foto. */
+    (function() {
+      var c = navigator.connection || {};
+      if (c.saveData === true || /2g/.test(c.effectiveType || '')) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      document.documentElement.classList.add('nightvideo');
+    })();
     addEventListener('pageshow', function() {
       window.scrollTo(0, 0);
     });
@@ -3301,6 +3311,46 @@
         opacity: 1
       }
     }
+
+    /* ---------- riquadro della frase: ripresa col drone in loop ----------
+       Lo sfondo e' il primo fotogramma del video: finche' il video non e'
+       pronto, e durante il riavvio del loop, si vede quello, senza stacchi. */
+    html.nightvideo .night .bg {
+      background-image: url('video/villa-pc.webp')
+    }
+
+    html.nightvideo .night-frame:hover .zoomer {
+      transform: scale(1.04)
+    }
+
+    html.nightvideo .night .veil {
+      background: linear-gradient(180deg, rgba(40, 42, 30, .46) 0%, rgba(40, 42, 30, .40) 50%, rgba(40, 42, 30, .54) 100%)
+    }
+
+    #nightVid {
+      display: none
+    }
+
+    html.nightvideo #nightVid {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity .9s ease
+    }
+
+    html.nightvideo #nightVid.on {
+      opacity: 1
+    }
+
+    @media (max-width: 767px) and (orientation: portrait) {
+      html.nightvideo .night .bg {
+        background-image: url('video/villa-m.webp')
+      }
+    }
   </style>
   <noscript>
     <style>
@@ -3548,7 +3598,9 @@
   <section class="night">
     <div class="night-frame rvfade">
       <div class="zoomer">
-        <div class="bg" id="nightBg"></div>
+        <div class="bg" id="nightBg">
+          <video id="nightVid" muted loop playsinline disablepictureinpicture preload="none" aria-hidden="true"></video>
+        </div>
       </div>
       <div class="veil"></div>
       <div class="quote">
@@ -5309,6 +5361,34 @@
       });
 
     }
+
+    /* Riquadro della frase: il video si scarica solo quando la sezione si
+       avvicina, gira solo mentre e' visibile e sfuma sul primo fotogramma
+       prima di ricominciare, cosi' il riavvio del loop non si nota. */
+    (function() {
+      var v = document.getElementById('nightVid');
+      if (!v || !document.documentElement.classList.contains('nightvideo')) return;
+      var phone = matchMedia('(max-width: 767px) and (orientation: portrait)').matches;
+      var loaded = false;
+      v.muted = true;
+      v.addEventListener('timeupdate', function() {
+        if (!v.duration) return;
+        var left = v.duration - v.currentTime;
+        v.classList.toggle('on', left > 1.2);
+      });
+      new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+          if (!loaded) {
+            loaded = true;
+            v.src = phone ? 'video/villa-m.mp4' : 'video/villa-pc.mp4';
+          }
+          var p = v.play();
+          if (p) p.catch(function() {});
+        } else {
+          v.pause();
+        }
+      }, { rootMargin: '300px 0px' }).observe(v.closest('.night-frame'));
+    })();
 
     /* Su telefono si parte subito. Su computer si attendono GSAP e Lenis,
        che servono per le animazioni e lo scorrimento smorzato. */
