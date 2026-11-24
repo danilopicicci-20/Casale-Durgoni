@@ -3289,6 +3289,67 @@
       }
     }
 
+    /* ---- scritta principale: avorio nitido su un velo scuro morbido ----
+       L'alone chiaro lattiginoso e' sostituito da un'ombra morbida e
+       scura (distacco dalla foto) e le lettere hanno un'ombra corta e
+       decisa: restano leggibili su tutte e tre le foto, anche di notte. */
+    html.herophoto .hb-halo {
+      background: radial-gradient(ellipse at center, rgba(26, 28, 19, .66) 0%, rgba(26, 28, 19, .46) 42%, rgba(26, 28, 19, 0) 72%)
+    }
+
+    html.herophoto .hb-top,
+    html.herophoto .hb-mono,
+    html.herophoto .hb-dot,
+    html.herophoto .hb-ring b {
+      color: #f9f2e6
+    }
+
+    html.herophoto .hb-top i {
+      background: linear-gradient(90deg, transparent, rgba(249, 242, 230, .95))
+    }
+
+    html.herophoto .hb-ring {
+      border-color: rgba(249, 242, 230, .95)
+    }
+
+    html.herophoto .hb-ring::before {
+      border-color: rgba(249, 242, 230, .6)
+    }
+
+    html.herophoto .hb-word {
+      text-shadow: 0 1px 2px rgba(18, 20, 12, .8), 0 2px 10px rgba(18, 20, 12, .6), 0 3px 22px rgba(18, 20, 12, .5)
+    }
+
+    html.herophoto #heroTitle {
+      text-shadow: 0 2px 3px rgba(18, 20, 12, .55), 0 6px 34px rgba(18, 20, 12, .6)
+    }
+
+    html.herophoto #heroTitle .lt {
+      color: #fcf6eb
+    }
+
+    html.herophoto .hb-ring b,
+    html.herophoto .hb-dot {
+      text-shadow: 0 1px 2px rgba(18, 20, 12, .6)
+    }
+
+    html.herophoto .hero .chip {
+      color: #f9f2e6;
+      background: rgba(26, 28, 19, .5);
+      border-color: rgba(249, 242, 230, .42);
+      text-shadow: 0 1px 2px rgba(18, 20, 12, .6)
+    }
+
+    html.herophoto .hero .sub {
+      color: rgba(251, 245, 235, .96);
+      text-shadow: 0 1px 2px rgba(18, 20, 12, .75), 0 2px 18px rgba(18, 20, 12, .6)
+    }
+
+    html.herophoto .hero .cue {
+      color: rgba(249, 242, 230, .85);
+      text-shadow: 0 1px 2px rgba(18, 20, 12, .6)
+    }
+
     @keyframes hFade {
       from {
         opacity: 0
