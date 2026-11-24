@@ -1650,6 +1650,66 @@
       color: var(--ivory)
     }
 
+    /* pulsanti degli appartamenti: pillole come il resto del sito, quella
+       attiva piena nel gradiente terracotta-sabbia */
+    .apt-tabs {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin: 6px auto 0;
+      padding: 0 4vw
+    }
+
+    .apt-tab {
+      font: inherit;
+      font-size: 11px;
+      letter-spacing: .32em;
+      text-indent: .32em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      padding: 14px 30px;
+      border-radius: 100px;
+      border: 1px solid var(--stroke);
+      background: var(--glass);
+      color: var(--dim);
+      cursor: pointer;
+      transition: background .45s var(--ease), color .45s var(--ease), border-color .45s var(--ease)
+    }
+
+    .apt-tab:hover {
+      color: var(--ink);
+      border-color: rgba(219, 163, 131, .6)
+    }
+
+    .apt-tab.on {
+      background: var(--grad);
+      border-color: transparent;
+      color: #3d402e;
+      font-weight: 400
+    }
+
+    .apt-tab:focus-visible {
+      outline: 1px solid var(--gold);
+      outline-offset: 3px
+    }
+
+    @media (max-width: 640px) {
+      .apt-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 0 5vw
+      }
+
+      .apt-tab {
+        font-size: 9px;
+        letter-spacing: .12em;
+        text-indent: .12em;
+        padding: 13px 4px
+      }
+    }
+
     /* ---------- esterni bento ---------- */
   /* Griglia "bento" delle foto degli esterni con didascalie e zoom al passaggio del mouse */
     .ext {
@@ -3714,68 +3774,121 @@
       </div>
       <p class="rvfade" data-en="Move the mouse to the edges — the gallery scrolls">Porta il mouse ai bordi — la galleria scorre</p>
     </div>
+    <!-- Scelta dell'appartamento: mostra solo le foto di quello selezionato -->
+    <div class="apt-tabs rvfade" role="tablist" aria-label="Appartamenti">
+      <button type="button" class="apt-tab on" role="tab" aria-selected="true" data-apt="1" data-en="Apartment 1">Appartamento 1</button>
+      <button type="button" class="apt-tab" role="tab" aria-selected="false" data-apt="2" data-en="Apartment 2">Appartamento 2</button>
+      <button type="button" class="apt-tab" role="tab" aria-selected="false" data-apt="3" data-en="Apartment 3">Appartamento 3</button>
+    </div>
     <div class="gal-pin" id="galPin">
       <div class="gal-stage">
         <div class="gal-track" id="galTrack">
-          <div class="gcard">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-01.webp" type="image/webp"><img src="img/gal-01.jpg" alt="Salotto" loading="lazy" decoding="async"></picture></div>
+          <!-- Appartamento 1 -->
+          <div class="gcard" data-apt="1">
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt1-01.webp" type="image/webp"><img src="img/apt1-01.jpg" alt="Appartamento 1 — Salotto" loading="lazy" decoding="async"></picture></div>
             <div class="cap" data-en="Living room">Salotto</div>
           </div>
-          <div class="gcard">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-02.webp" type="image/webp"><img src="img/gal-02.jpg" alt="Salotto" loading="lazy" decoding="async"></picture></div>
-            <div class="cap" data-en="Living room">Salotto</div>
+          <div class="gcard" data-apt="1">
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt1-02.webp" type="image/webp"><img src="img/apt1-02.jpg" alt="Appartamento 1 — Camera" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Bedroom">Camera</div>
           </div>
-          <div class="gcard tall">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-03.webp" type="image/webp"><img src="img/gal-03.jpg" alt="Cucina" loading="lazy" decoding="async"></picture></div>
+          <div class="gcard" data-apt="1">
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt1-03.webp" type="image/webp"><img src="img/apt1-03.jpg" alt="Appartamento 1 — Bagno" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Bathroom">Bagno</div>
+          </div>
+          <div class="gcard" data-apt="1">
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt1-04.webp" type="image/webp"><img src="img/apt1-04.jpg" alt="Appartamento 1 — Ingresso" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Entrance">Ingresso</div>
+          </div>
+          <div class="gcard" data-apt="1">
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt1-05.webp" type="image/webp"><img src="img/apt1-05.jpg" alt="Appartamento 1 — Sala da pranzo" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Dining room">Sala da pranzo</div>
+          </div>
+          <!-- Appartamento 2 -->
+          <div class="gcard" data-apt="2" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt2-01.webp" type="image/webp"><img src="img/apt2-01.jpg" alt="Appartamento 2 — Camera 1" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Bedroom 1">Camera 1</div>
+          </div>
+          <div class="gcard" data-apt="2" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt2-02.webp" type="image/webp"><img src="img/apt2-02.jpg" alt="Appartamento 2 — Bagno" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Bathroom">Bagno</div>
+          </div>
+          <div class="gcard" data-apt="2" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt2-03.webp" type="image/webp"><img src="img/apt2-03.jpg" alt="Appartamento 2 — Camera 2" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Bedroom 2">Camera 2</div>
+          </div>
+          <div class="gcard" data-apt="2" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt2-04.webp" type="image/webp"><img src="img/apt2-04.jpg" alt="Appartamento 2 — Cucina" loading="lazy" decoding="async"></picture></div>
             <div class="cap" data-en="Kitchen">Cucina</div>
           </div>
-          <div class="gcard">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-04.webp" type="image/webp"><img src="img/gal-04.jpg" alt="Stanza 1" loading="lazy" decoding="async"></picture></div>
-            <div class="cap" data-en="Room 1">Stanza 1</div>
+          <div class="gcard" data-apt="2" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt2-05.webp" type="image/webp"><img src="img/apt2-05.jpg" alt="Appartamento 2 — Zona pranzo" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Dining area">Zona pranzo</div>
           </div>
-          <div class="gcard tall">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-05.webp" type="image/webp"><img src="img/gal-05.jpg" alt="Stanza 2" loading="lazy" decoding="async"></picture></div>
-            <div class="cap" data-en="Room 2">Stanza 2</div>
+          <div class="gcard" data-apt="2" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt2-06.webp" type="image/webp"><img src="img/apt2-06.jpg" alt="Appartamento 2 — Camino" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Fireplace">Camino</div>
           </div>
-          <div class="gcard">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-06.webp" type="image/webp"><img src="img/gal-06.jpg" alt="Stanza 3" loading="lazy" decoding="async"></picture></div>
-            <div class="cap" data-en="Room 3">Stanza 3</div>
+          <div class="gcard" data-apt="2" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt2-07.webp" type="image/webp"><img src="img/apt2-07.jpg" alt="Appartamento 2 — Camera 2" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Bedroom 2">Camera 2</div>
           </div>
-          <div class="gcard">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-07.webp" type="image/webp"><img src="img/gal-07.jpg" alt="Stanza 4" loading="lazy" decoding="async"></picture></div>
-            <div class="cap" data-en="Room 4">Stanza 4</div>
+          <!-- Appartamento 3 -->
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-01.webp" type="image/webp"><img src="img/apt3-01.jpg" alt="Appartamento 3 — Camera 1" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Bedroom 1">Camera 1</div>
           </div>
-          <div class="gcard tall">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-08.webp" type="image/webp"><img src="img/gal-08.jpg" alt="Stanza 5" loading="lazy" decoding="async"></picture></div>
-            <div class="cap" data-en="Room 5">Stanza 5</div>
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-02.webp" type="image/webp"><img src="img/apt3-02.jpg" alt="Appartamento 3 — Salotto" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Living room">Salotto</div>
           </div>
-          <div class="gcard">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-09.webp" type="image/webp"><img src="img/gal-09.jpg" alt="Stanza 6" loading="lazy" decoding="async"></picture></div>
-            <div class="cap" data-en="Room 6">Stanza 6</div>
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-03.webp" type="image/webp"><img src="img/apt3-03.jpg" alt="Appartamento 3 — Salotto con camino" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Living room">Salotto</div>
           </div>
-          <div class="gcard">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-10.webp" type="image/webp"><img src="img/gal-10.jpg" alt="Stanza 7" loading="lazy" decoding="async"></picture></div>
-            <div class="cap" data-en="Room 7">Stanza 7</div>
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-04.webp" type="image/webp"><img src="img/apt3-04.jpg" alt="Appartamento 3 — Sala da pranzo" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Dining room">Sala da pranzo</div>
           </div>
-          <div class="gcard tall">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-11.webp" type="image/webp"><img src="img/gal-11.jpg" alt="Bagno 1" loading="lazy" decoding="async"></picture></div>
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-05.webp" type="image/webp"><img src="img/apt3-05.jpg" alt="Appartamento 3 — Cucina" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Kitchen">Cucina</div>
+          </div>
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-06.webp" type="image/webp"><img src="img/apt3-06.jpg" alt="Appartamento 3 — Sala da pranzo" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Dining room">Sala da pranzo</div>
+          </div>
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-07.webp" type="image/webp"><img src="img/apt3-07.jpg" alt="Appartamento 3 — Camera 2" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Bedroom 2">Camera 2</div>
+          </div>
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-08.webp" type="image/webp"><img src="img/apt3-08.jpg" alt="Appartamento 3 — Camera 3" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Bedroom 3">Camera 3</div>
+          </div>
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-09.webp" type="image/webp"><img src="img/apt3-09.jpg" alt="Appartamento 3 — Camera 4" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Bedroom 4">Camera 4</div>
+          </div>
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-10.webp" type="image/webp"><img src="img/apt3-10.jpg" alt="Appartamento 3 — Bagno 1" loading="lazy" decoding="async"></picture></div>
             <div class="cap" data-en="Bathroom 1">Bagno 1</div>
           </div>
-          <div class="gcard">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-12.webp" type="image/webp"><img src="img/gal-12.jpg" alt="Bagno 2" loading="lazy" decoding="async"></picture></div>
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-11.webp" type="image/webp"><img src="img/apt3-11.jpg" alt="Appartamento 3 — Bagno 2" loading="lazy" decoding="async"></picture></div>
             <div class="cap" data-en="Bathroom 2">Bagno 2</div>
           </div>
-          <div class="gcard">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-13.webp" type="image/webp"><img src="img/gal-13.jpg" alt="Bagno 3" loading="lazy" decoding="async"></picture></div>
-            <div class="cap" data-en="Bathroom 3">Bagno 3</div>
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-12.webp" type="image/webp"><img src="img/apt3-12.jpg" alt="Appartamento 3 — Cucina" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Kitchen">Cucina</div>
           </div>
-          <div class="gcard">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-14.webp" type="image/webp"><img src="img/gal-14.jpg" alt="Bagno 4" loading="lazy" decoding="async"></picture></div>
-            <div class="cap" data-en="Bathroom 4">Bagno 4</div>
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-13.webp" type="image/webp"><img src="img/apt3-13.jpg" alt="Appartamento 3 — Cucina" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Kitchen">Cucina</div>
           </div>
-          <div class="gcard tall">
-            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/gal-15.webp" type="image/webp"><img src="img/gal-15.jpg" alt="Palestra" loading="lazy" decoding="async"></picture></div>
-            <div class="cap" data-en="Gym">Palestra</div>
+          <div class="gcard" data-apt="3" hidden>
+            <div class="ph"><picture><source media="(max-width:820px)" srcset="img/m/apt3-14.webp" type="image/webp"><img src="img/apt3-14.jpg" alt="Appartamento 3 — Sala da pranzo" loading="lazy" decoding="async"></picture></div>
+            <div class="cap" data-en="Dining room">Sala da pranzo</div>
           </div>
         </div>
       </div>
@@ -5099,6 +5212,12 @@
           passive: true
         });
         if (window.ResizeObserver) new ResizeObserver(remeasure).observe(track);
+        /* cambio appartamento: la pista riparte dall'inizio */
+        track.addEventListener('galreset', function() {
+          target = cur = prev = speed = skew = 0;
+          track.style.transform = 'translate3d(0,0,0)';
+          remeasure();
+        });
 
         /* Il ciclo gira solo quando la galleria e' effettivamente
            sullo schermo: fuori da li' non consuma nulla. */
@@ -5203,7 +5322,9 @@
         function eager() {
           /* a gruppi di 4: scaricarle tutte insieme saturava la rete
              proprio mentre arrivavano i fotogrammi della discesa */
-          var list = [].slice.call(stage.querySelectorAll('img[loading="lazy"]')),
+          /* solo l'appartamento visibile: gli altri si caricano quando
+             vengono scelti */
+          var list = [].slice.call(stage.querySelectorAll('.gcard:not([hidden]) img[loading="lazy"]')),
             k = 0;
           (function step() {
             var batch = list.slice(k, k + 4);
@@ -5238,6 +5359,45 @@
         } else {
           eager();
         }
+      })();
+
+      /* ---------- galleria: scelta dell'appartamento ---------- */
+  /* Ogni pulsante mostra solo le card del suo appartamento: la pista
+     sfuma, si sostituiscono le foto, riparte dall'inizio e riappare. */
+      (function() {
+        var tabs = document.querySelectorAll('.apt-tab'),
+          track = document.getElementById('galTrack'),
+          stage = document.querySelector('.gal-stage');
+        if (!tabs.length || !track || !stage) return;
+
+        function show(n) {
+          track.querySelectorAll('.gcard').forEach(function(c) {
+            c.hidden = c.getAttribute('data-apt') !== n;
+          });
+          stage.scrollLeft = 0;
+          track.dispatchEvent(new Event('galreset'));
+          track.querySelectorAll('.gcard:not([hidden]) img[loading="lazy"]').forEach(function(im) {
+            im.loading = 'eager';
+          });
+        }
+        tabs.forEach(function(b) {
+          b.addEventListener('click', function() {
+            if (b.classList.contains('on')) return;
+            var n = b.getAttribute('data-apt');
+            tabs.forEach(function(t) {
+              var on = t === b;
+              t.classList.toggle('on', on);
+              t.setAttribute('aria-selected', on ? 'true' : 'false');
+            });
+            if (!track.animate || reduced) return show(n);
+            var out = track.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease', fill: 'forwards' });
+            out.onfinish = function() {
+              show(n);
+              track.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, easing: 'ease' });
+              out.cancel();
+            };
+          });
+        });
       })();
 
       /* ---------- lingua IT / EN ---------- */
