@@ -67,8 +67,9 @@
        scritti dentro la pagina; 'unsafe-eval' NON è concesso.
        object-src 'none' e base-uri 'self' chiudono due classiche vie d'attacco;
        form-action 'none' impedisce l'invio di dati verso l'esterno (il sito
-       non ha moduli); frame-ancestors 'none' impedisce che il sito venga
-       incorniciato in pagine altrui (clickjacking). -->
+       non ha moduli). La protezione dall'incorniciamento in pagine altrui
+       (frame-ancestors) funziona solo come intestazione del server: e' in
+       hostinger-cache.conf, qui il browser la ignorava segnalando un errore. -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://unpkg.com;
@@ -80,7 +81,6 @@
     object-src 'none';
     base-uri 'self';
     form-action 'none';
-    frame-ancestors 'none';
     upgrade-insecure-requests">
 
   <!-- Non invia l'indirizzo delle pagine visitate ai siti esterni -->
@@ -123,7 +123,9 @@
   <title>Casale Durgoni — Villa leopoldina con piscina privata · Laterina, Arezzo</title>
   <meta name="description" content="Autentica villa leopoldina ai piedi del borgo di Laterina, alle porte di Arezzo. Piscina privata ad uso esclusivo, parco ombreggiato e tre appartamenti indipendenti.">
   <!-- prima foto dell'hero: scaricata subito, in parallelo a tutto il resto -->
-  <link rel="preload" as="image" href="img/hero/hero-5.webp" fetchpriority="high">
+  <!-- telefono in verticale: versione ritagliata al centro (piu' leggera) -->
+  <link rel="preload" as="image" href="img/hero/m/hero-5.webp" media="(max-width: 767px) and (orientation: portrait)" fetchpriority="high">
+  <link rel="preload" as="image" href="img/hero/hero-5.webp" media="(min-width: 768px), (orientation: landscape)" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- I caratteri non bloccano piu' il primo disegno: si caricano in
@@ -1526,8 +1528,14 @@
     .night .bg {
       position: absolute;
       inset: -14% 0;
-      background: url('img/night-bg.jpg') center/cover no-repeat;
+      background: center/cover no-repeat;
       will-change: transform
+    }
+
+    /* gli sfondi di Night e Prenota si scaricano solo quando la sezione si
+       avvicina (classe "near"): prima partivano subito, all'apertura */
+    .night.near .bg {
+      background-image: url('img/night-bg.jpg')
     }
 
     .night .veil {
@@ -2029,8 +2037,12 @@
     .cta .bg {
       position: absolute;
       inset: -14% 0;
-      background: url('img/cta-bg.jpg') center/cover no-repeat;
+      background: center/cover no-repeat;
       will-change: transform
+    }
+
+    .cta.near .bg {
+      background-image: url('img/cta-bg.jpg')
     }
 
     .cta .veil {
@@ -2127,11 +2139,11 @@
     @media (max-width:820px) {
 
       /* sfondi alleggeriti: sul telefono bastano 640 px di larghezza */
-      .night .bg {
+      .night.near .bg {
         background-image: url('img/m/night-bg.webp')
       }
 
-      .cta .bg {
+      .cta.near .bg {
         background-image: url('img/m/cta-bg.webp')
       }
     }
@@ -3142,6 +3154,22 @@
       background-image: url('img/hero/hero-6.webp')
     }
 
+    /* Telefono in verticale: lo schermo mostra solo la parte centrale
+       della foto, quindi si scarica gia' ritagliata (~40% in meno). */
+    @media (max-width: 767px) and (orientation: portrait) {
+      html.herophoto .hp1 {
+        background-image: url('img/hero/m/hero-5.webp')
+      }
+
+      html.herophoto.hin .hp2 {
+        background-image: url('img/hero/m/hero-4.webp')
+      }
+
+      html.herophoto.hin .hp3 {
+        background-image: url('img/hero/m/hero-6.webp')
+      }
+    }
+
     /* direzioni del lento movimento, diverse per ogni foto */
     html.herophoto .hp2 {
       --x0: -.5%;
@@ -3436,7 +3464,7 @@
     /* ---------- riquadro della frase: ripresa col drone in loop ----------
        Lo sfondo e' il primo fotogramma del video: finche' il video non e'
        pronto, e durante il riavvio del loop, si vede quello, senza stacchi. */
-    html.nightvideo .night .bg {
+    html.nightvideo .night.near .bg {
       background-image: url('video/villa-pc.webp')
     }
 
@@ -3495,7 +3523,7 @@
     }
 
     @media (max-width: 767px) and (orientation: portrait) {
-      html.nightvideo .night .bg {
+      html.nightvideo .night.near .bg {
         background-image: url('video/villa-m.webp')
       }
     }
@@ -3509,6 +3537,14 @@
 
       #loader {
         display: none
+      }
+
+      .night .bg {
+        background-image: url('img/night-bg.jpg')
+      }
+
+      .cta .bg {
+        background-image: url('img/cta-bg.jpg')
       }
     </style>
   </noscript>
@@ -3527,7 +3563,7 @@
         <circle class="ld-track" cx="100" cy="100" r="94" />
         <circle class="ld-prog" id="ldRing" cx="100" cy="100" r="94" />
       </svg>
-      <img class="ld-logo" src="img/loader-logo.png" alt="Casale Durgoni" fetchpriority="high" decoding="async">
+      <img class="ld-logo" src="img/loader-logo.webp" width="400" height="400" alt="Casale Durgoni" fetchpriority="high" decoding="async">
     </div>
   </div>
 
@@ -3537,7 +3573,7 @@
   <div id="pbar"></div>
 
   <nav id="nav">
-    <a class="brand-logo mag" href="#top"><img src="img/brand-logo.png" alt="Casale Durgoni"></a>
+    <a class="brand-logo mag" href="#top"><img src="img/brand-logo.webp" width="160" height="160" alt="Casale Durgoni"></a>
     <div class="pill links">
       <a href="#tenuta" data-en="The Estate">La Tenuta</a>
       <a href="#galleria" data-en="Gallery">Galleria</a>
@@ -4120,6 +4156,8 @@
       s.src = src;
       s.crossOrigin = 'anonymous';
       s.referrerPolicy = 'no-referrer';
+      /* scaricati insieme, eseguiti in ordine di inserimento */
+      s.async = false;
       s.onload = cb;
       s.onerror = cb;
       document.head.appendChild(s);
@@ -4134,10 +4172,6 @@
         if (l) l.classList.add('off');
         document.documentElement.classList.remove('lding');
         document.documentElement.classList.add('hin');
-        try {
-          var lg = document.querySelector('.legal span:last-child');
-          if (lg && ev && ev.message) lg.textContent = 'v5 · errore: ' + String(ev.message).slice(0, 90);
-        } catch (_) {}
       });
       var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
       var touch = matchMedia('(hover: none)').matches;
@@ -4944,7 +4978,7 @@
         hpImg.onerror = function() {
           heroImgReady = true;
         };
-        hpImg.src = 'img/hero/hero-5.webp';
+        hpImg.src = matchMedia('(max-width: 767px) and (orientation: portrait)').matches ? 'img/hero/m/hero-5.webp' : 'img/hero/hero-5.webp';
       }
 
       var ldTimer = setInterval(function() {
@@ -5656,6 +5690,31 @@
       }, { rootMargin: '300px 0px' }).observe(v.closest('.night-frame'));
     })();
 
+    /* Sfondi pigri di Night e Prenota: la classe "near" li attiva quando la
+       sezione e' a meno di ~900 px dallo schermo. */
+    (function() {
+      var els = document.querySelectorAll('.night, .cta');
+      if (!('IntersectionObserver' in window)) {
+        els.forEach(function(el) {
+          el.classList.add('near');
+        });
+        return;
+      }
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(en) {
+          if (en.isIntersecting) {
+            en.target.classList.add('near');
+            io.unobserve(en.target);
+          }
+        });
+      }, {
+        rootMargin: '900px 0px'
+      });
+      els.forEach(function(el) {
+        io.observe(el);
+      });
+    })();
+
     /* Su telefono si parte subito. Su computer si attendono GSAP e Lenis,
        che servono per le animazioni e lo scorrimento smorzato. */
     (function() {
@@ -5668,14 +5727,23 @@
         'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js',
         'https://unpkg.com/lenis@1.1.14/dist/lenis.min.js'
       ];
-      var i = 0;
-      (function next() {
-        if (i >= urls.length) {
-          boot();
-          return;
-        }
-        window.loadScript(urls[i++], next);
-      })();
+      /* Le tre librerie si scaricano in parallelo (prima una dopo l'altra)
+         ma vengono eseguite nell'ordine giusto. Se un server esterno e'
+         lento o non risponde, dopo 2,5 s il sito parte comunque senza
+         animazioni: prima si poteva restare fermi sul caricamento. */
+      var started = false,
+        left = urls.length;
+      var go = function() {
+        if (started) return;
+        started = true;
+        boot();
+      };
+      urls.forEach(function(u) {
+        window.loadScript(u, function() {
+          if (--left === 0) go();
+        });
+      });
+      setTimeout(go, 2500);
     })();
   </script>
 
